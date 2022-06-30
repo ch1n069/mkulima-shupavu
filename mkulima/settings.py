@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     # third parties libraries
     'phonenumber_field',
     'location_field.apps.DefaultConfig',
+    'rest_framework',
+    # 'rest_framework.authtoken'
 
     # own 
     'users',

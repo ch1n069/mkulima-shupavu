@@ -72,7 +72,7 @@ class Profile(models.Model):
 class ModuleSubscribe(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=1, decimal_places=0)
+    price = models.DecimalField(max_digits=3, decimal_places=2)
     title = models.CharField(max_length=100)
     picture = CloudinaryField(blank=True)
     content = models.TextField(blank=True)
