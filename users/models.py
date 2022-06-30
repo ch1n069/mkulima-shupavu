@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
-from cloudinary.models import CloudinaryField
+# from cloudinary.models import models.cloudinary
 from location_field.models.plain import PlainLocationField
 
 # Create your models here.
@@ -17,7 +17,7 @@ class Input(models.Model):
 
 class Plant(models.Model):
     name = models.CharField(max_length=100)
-    img = CloudinaryField(blank=True)
+    img = models.ImageField(blank=True)
     description = models.TextField(blank=True)
     user =  models.ForeignKey(User, on_delete=models.CASCADE)
     price = models.TextField()
@@ -43,8 +43,8 @@ class Garanter(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=255, blank=True)
     contact = PhoneNumberField(blank=True)
-    mpesa_statements = CloudinaryField(blank=True)
-    id_img = CloudinaryField(blank=True)
+    mpesa_statements = models.ImageField(blank=True)
+    id_img = models.ImageField(blank=True)
 
 
     def __str__(self):      
@@ -55,7 +55,7 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=255, blank=True)
     contact = PhoneNumberField(blank=True)
-    # image = CloudinaryField('image', blank=True)
+    image = models.ImageField('image', blank=True)
     user =  models.ForeignKey(User, on_delete=models.CASCADE)
     trustee = models.ForeignKey(Garanter, on_delete=models.CASCADE)
     land = models.ForeignKey(Land,on_delete=models.CASCADE)
@@ -74,7 +74,7 @@ class ModuleSubscribe(models.Model):
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=3, decimal_places=2)
     title = models.CharField(max_length=100)
-    picture = CloudinaryField(blank=True)
+    picture = models.ImageField(blank=True)
     content = models.TextField(blank=True)
 
 
