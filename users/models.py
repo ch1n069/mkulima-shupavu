@@ -55,7 +55,7 @@ class Profile(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=255, blank=True)
     contact = PhoneNumberField(blank=True)
-    image = CloudinaryField('image', blank=True)
+    # image = CloudinaryField('image', blank=True)
     user =  models.ForeignKey(User, on_delete=models.CASCADE)
     trustee = models.ForeignKey(Garanter, on_delete=models.CASCADE)
     land = models.ForeignKey(Land,on_delete=models.CASCADE)
