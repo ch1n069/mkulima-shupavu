@@ -2,27 +2,39 @@ from django.shortcuts import render
 from .models import Profile
 from .serializers import ProfileSerializer
 
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework  import status
-from rest_framework.views import APIView
+from rest_framework import generics
+from rest_framework import mixins
+from rest_framework.authentication import SessionAuthentication,BasicAuthentication,TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets
+# from rest_framework.authtoken.models import Token
 
-@api_view(['GET', 'POST'])
-def profile_list(request):
+# generic views
+class ProfileGenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin, mixins.RetrieveModelMixin,mixins.DestroyModelMixin):
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
 
-    if request.method == 'GET':
-        profiles = Profile.objects.all()
-        serializer = ProfileSerializer(profiles, many=True)
-        
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = ProfileSerializer(data=request.data)
+    lookup_field = 'id'
 
+    # authentication_classes = [SessionAuthentication,BasicAuthentication]
+    # authentication_classes =[TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
 
-        if serializer.is_valid():
-            serializer.save()
+    def get(self, request, id=None):
+        if id : 
+            return self.retrieve(request)
+        else :
+            return self.list(request)
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return self.list(request)
 
-        return Response(serializer.errors, status=status.HTTP_404_BAD_REQUEST)
+    def post(self, request):
+
+        return self.create(request)
+
+    def put(self, request, id=None):
+        return self.update(request, id)
+
+    def delete(self,request, id=None):
+
+        return self.destroy(request, id)

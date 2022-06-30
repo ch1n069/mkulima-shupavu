@@ -3,7 +3,5 @@ from . import views
 
 
 urlpatterns = [
-       
-    path('profile/', views.profile_list, name="profile"), 
-
+    path('profile/', views.ProfileGenericAPIView.as_view() ,name='profile'),    
 ]
