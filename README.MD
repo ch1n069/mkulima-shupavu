@@ -12,15 +12,15 @@ To generate either an access or refresh token, got to your chrome browser or pos
 5. click send in Postman to access the api endpoint's properties
 
 If you run into an error in Postman where the prompt is token not valid, got to your terminal and run;
-    `curl \ `
-    `-X POST \`
-    `-H "Content-Type: application/json" \`
-    `-d '{"username": "admin", "password": "123"}' \ `
+1. `curl \ `
+2. `-X POST \`
+3. `-H "Content-Type: application/json" \`
+4. `-d '{"username": "admin", "password": "123"}' \ `
     You will get the access the access and refresh token. Copy either tokens. However, the refresh token is prefferable as it expires in 24 hours.
 
 Then run the following to prove authentication of the protected api endpoint;
-    `curl \`
-    `-X POST \`
-    `-H "Authorization: Bearer <paste the token>" \`
-    `http://127.0.0.1:8000/api/<api endpoint>/`
+1. `curl \`
+2. `-X POST \`
+3. `-H "Authorization: Bearer <paste the token>" \`
+4. `http://127.0.0.1:8000/api/<api endpoint>/`
     If successful, you will see the fields of the api endpoint
