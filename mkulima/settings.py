@@ -42,10 +42,14 @@ INSTALLED_APPS = [
     # third parties libraries
     'phonenumber_field',
     'location_field.apps.DefaultConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
 
     # own 
     'users',
+    
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -88,6 +92,23 @@ DATABASES = {
     }
 }
 
+# AUTH_USER_MODEL = 'accounts.User'
+
+REST_FRAMEWORK = {
+
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        # allows access to a particular endpoint
+        
+    )
+
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

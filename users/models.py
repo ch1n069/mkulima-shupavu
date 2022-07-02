@@ -3,8 +3,11 @@ from django.contrib.auth.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 from cloudinary.models import CloudinaryField
 from location_field.models.plain import PlainLocationField
+from django.contrib.auth.models import AbstractUser
 
-# Create your models here.
+
+# custom user model
+
 
 class Input(models.Model):
     fertilizer = models.CharField(max_length=255, blank=True)
