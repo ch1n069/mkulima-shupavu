@@ -1,6 +1,6 @@
 from pickle import FALSE
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 # from cloudinary.models import CloudinaryField
 
 # Create your models here.
@@ -35,24 +35,65 @@ class Inputs(models.Model):
     fertilizer_bags = models.IntegerField(null=True)
     seedlings_bags = models.IntegerField(null=True)
     chemicals = models.IntegerField(null=True)
+    fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20)
+    seedlings_price = models.DecimalField(decimal_places=2, max_digits=20)
+    chemicals_price = models.DecimalField(decimal_places=2, max_digits=20)
     
     def __str__(self):      
         return str(self.fertilizer_name, self.chemical_name, self.seedlings_name) 
-
-# profile class
-class UserDetails(models.Model):
-    '''
-    this class represents the repetitive details of different users
-    can be used in a form or profile
-    these details are constant
-    '''
-    name = models.CharField(max_length=255, null=False)
-    email = models.EmailField(blank=False)
-    password = models.CharField(max_length=255, null=False)
-        
     
-    def __str__(self):      
-        return str(self.name) 
+    def total_fert_amount(self):
+        amount = self.fertilizer_bags * self.fertilizer_price
+        return amount 
+    
+    def total_chem_amount(self):
+        amount = self.chemicals_price * self.chemicals
+        return amount 
+    
+    def total_seed_amount(self):
+        amount = self.seedlings_bags * self.seedlings_price
+        return amount 
+    
+
+# if users can assume multiple roles, ie farmer can be a supplier, then we will add an
+# extra table and use a many to many relationship in the User model
+class Role(models.Model):
+    '''
+    These role entries are managed by the system automatically and are created during a migration
+    '''
+    FARMER = 1
+    BUYER = 2
+    AGENT = 3
+    SUPPLIER = 4
+    ROLE_CHOICES = (
+        (FARMER, 'farmer'),
+        (BUYER, 'buyer'),
+        (SUPPLIER, 'supplier'),
+        (AGENT, 'agent'),        
+    )
+    
+    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
+    
+    def __str__(self):
+        return self.get_id_display()
+
+# model to represent different user types of the application
+class User(AbstractUser):
+    '''
+    class user assumes multiple users of the application
+    contact, location and username are relevant to all users. So we add these extra fields here
+    Args: 
+        is_farmer, is_buyer, is_supplier, is_agent are multiple users with different roles
+        roles extends the roles of the users in a many to many relationship if one user can have another role
+    '''
+    is_farmer = models.BooleanField(default=False)
+    is_buyer = models.BooleanField(default=False)
+    is_supplier = models.BooleanField(default=False)
+    is_agent = models.BooleanField(default=False)
+    username = models.CharField(max_length=255, null=False, default = '')
+    contact = models.IntegerField(null=False, default = 0)
+    location = models.CharField(max_length=255, null=False, default = 'place')
+    roles = models.ManyToManyField(Role)
 
 # guarantor class
 class Guarantor(models.Model):
@@ -82,23 +123,35 @@ class Farmer(models.Model):
         inputs_picked, loan_amount, production, crop, land_size, revenue, amount_payable
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
-    location = models.CharField(max_length=255, null=False, default = 'place')
     identification_number = models.IntegerField(null=False)
     mpesa_statements = models.ImageField(upload_to='images/')
     identification_card = models.ImageField(upload_to='images/')  
-    # guarantor = models.OneToOneField(Guarantor, on_delete=models.CASCADE, null=True)  
-    # inputs_picked = models.ForeignKey(Inputs, on_delete=models.CASCADE, null=True)
+    guarantor = models.OneToOneField(Guarantor, on_delete=models.CASCADE, null=True)  
+    inputs_picked = models.ForeignKey(Inputs, on_delete=models.CASCADE, null=True)
     loan_amount = models.DecimalField(decimal_places=2, max_digits=20)
     production = models.IntegerField(null=True)
-    # crop = models.ForeignKey(Crop, on_delete=models.CASCADE,null=True)
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE,null=True)
     land_size = models.DecimalField(decimal_places=2, max_digits=20)
     revenue = models.DecimalField(decimal_places=2, max_digits=20)
     amount_payable = models.DecimalField(decimal_places=2, max_digits=20)
     
     def __str__(self):      
         return str(self.identification_number) 
+    
+    def save_farmer(self):
+        self.save()
+        
+    def delete_farmer(self):
+        self.delete()
+        
+    def loan_payable(self):
+        amount = self.revenue - self.loan_amount
+        return amount 
+    
+    def collected_inputs(self):
+        farmer_inputs = Farmer.objects.get(inputs = self.inputs_picked)
+        return farmer_inputs
+    
     
 class Supplier(models.Model):
     '''
@@ -109,10 +162,7 @@ class Supplier(models.Model):
         user_details, inputs_details, inputs_total, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
-    location = models.CharField(max_length=255, null=False, default = '')
-    inputs_details = models.ForeignKey(Inputs, on_delete=models.CASCADE)
+    inputs_details = models.ManyToManyField(Inputs, through='Agent')
     inputs_total = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
     
@@ -126,15 +176,18 @@ class Buyer(models.Model):
         user_details, crop_to_buy, bags_to_buy, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
-    location = models.CharField(max_length=255, null=False, default = '')
-    crop_to_buy = models.CharField(max_length=255, null=False)
+    crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
     bags_to_buy = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
     
     def __str__(self):      
         return str(self.invoice) 
+    
+    # the amount the buyer will pay based on their purchases
+    def the_invoice(self):
+        crop_price = Crop.objects.filter(price = Crop.price)
+        amount = crop_price * self.bags_to_buy
+        return amount 
 
 class Agent(models.Model):
     '''
@@ -145,9 +198,6 @@ class Agent(models.Model):
         user_details, farmer_supervising, farmers_allocated, inputs_record
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
-    location = models.CharField(max_length=255, null=False, default = '')
     farmer_supervising = models.ForeignKey(Farmer, on_delete=models.CASCADE)
     farmers_allocated = models.IntegerField(null=True)
     inputs_record = models.ForeignKey(Supplier, on_delete=models.CASCADE)

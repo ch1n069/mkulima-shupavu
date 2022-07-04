@@ -139,3 +139,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
+# extending auth user model to override the native User model in django
+# objective is to have multiple users in the system
+# mkulima is the application name and User is the django model to be used as the user model
+AUTH_USER_MODEL = 'mkulima.User'
