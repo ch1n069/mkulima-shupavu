@@ -44,6 +44,11 @@ INSTALLED_APPS = [
     'location_field.apps.DefaultConfig',
     'rest_framework',
     'rest_framework.authtoken',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'rest_auth',
+    'rest_auth.registration',
 
     # own 
     'users',
@@ -57,6 +62,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -103,8 +109,12 @@ WSGI_APPLICATION = 'mkulima.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mkulima',
+        'USER': 'wanjeri',
+        'PASSWORD': 'pass123',
+        'HOST': 'localhost',
+
     }
 }
 
@@ -140,6 +150,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+SITE_ID = 1
+AUTH_USER_MODEL = "users.USER"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -150,4 +163,4 @@ STATICFILES_DIR = (os.path.join(BASE_DIR, 'static'))
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
