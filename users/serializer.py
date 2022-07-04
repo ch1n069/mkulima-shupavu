@@ -21,4 +21,4 @@ class SupplierSerializer(serializers.ModelSerializer):
 class AgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
-        fields = ['user_details', 'farmer_supervising', 'farmers_allocated']                
+        fields = ['user_details', 'username','contact','location','farmer_supervising', 'farmers_allocated', 'inputs_record']                
