@@ -1,5 +1,14 @@
 from pickle import FALSE
 from django.db import models
+from django.conf import settings
+from django.contrib.auth.models import AbstractUser
+from rest_framework.authtoken.models import Token
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+
+
 from django.contrib.auth.models import AbstractUser
 # from cloudinary.models import CloudinaryField
 
@@ -153,6 +162,7 @@ class Farmer(models.Model):
         return farmer_inputs
     
     
+
 class Supplier(models.Model):
     '''
     supplier provides the inputs to the farmer and is paid promptly depending on the
@@ -162,12 +172,13 @@ class Supplier(models.Model):
         user_details, inputs_details, inputs_total, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+    # inputs_details = models.ForeignKey(Inputs, on_delete=models.CASCADE)
     inputs_details = models.ManyToManyField(Inputs, through='Agent')
     inputs_total = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
     
     def __str__(self):      
-        return str(self.invoice) 
+        return str(self.user_details) 
 
 class Buyer(models.Model):
     '''
@@ -176,12 +187,15 @@ class Buyer(models.Model):
         user_details, crop_to_buy, bags_to_buy, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
+    crop_to_buy = models.CharField(max_length=255, null=False)
     bags_to_buy = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
+    #crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
+
     
     def __str__(self):      
         return str(self.invoice) 
+        
     
     # the amount the buyer will pay based on their purchases
     def the_invoice(self):
@@ -209,91 +223,3 @@ class Agent(models.Model):
     
     
     
-
-# class Input(models.Model):
-#     fertilizer = models.CharField(max_length=255, blank=True)
-#     chemical = models.CharField(max_length=255, blank=True)
-#     seeds = models.CharField(max_length=255, blank=True)
-
-#     def __str__(self):      
-#         return str(self.fertilizer) 
-
-
-# class Plant(models.Model):
-#     name = models.CharField(max_length=100)
-#     img = CloudinaryField(blank=True)
-#     description = models.TextField(blank=True)
-#     user =  models.ForeignKey(User, on_delete=models.CASCADE)
-#     price = models.TextField()
-#     inputs = models.ForeignKey(Input, on_delete=models.CASCADE)
-#     # info = models.ForeignKey(Info, on_delete=models.CASCADE)
-
-#     def __str__(self):      
-#         return str(self.name) 
-
-
-
-# class Land(models.Model):
-#     sizes = models.IntegerField()
-#     output = models.TextField()
-#     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-
-
-#     def __str__(self):      
-#         return str(self.sizes) 
-
-
-# class Garanter(models.Model):
-#     name = models.CharField(max_length=100)
-#     email = models.EmailField(max_length=255, blank=True)
-#     contact = PhoneNumberField(blank=True)
-#     mpesa_statements = CloudinaryField(blank=True)
-#     id_img = CloudinaryField(blank=True)
-
-
-#     def __str__(self):      
-#         return str(self.name)  
-
-
-# class Profile(models.Model):
-#     name = models.CharField(max_length=100)
-#     email = models.EmailField(max_length=255, blank=True)
-#     contact = PhoneNumberField(blank=True)
-#     image = CloudinaryField('image', blank=True)
-#     user =  models.ForeignKey(User, on_delete=models.CASCADE)
-#     trustee = models.ForeignKey(Garanter, on_delete=models.CASCADE)
-#     land = models.ForeignKey(Land,on_delete=models.CASCADE)
-
-
-#     def __str__(self):      
-#         return str(self.name) 
-
-
-#     def get_all():
-#         result = Profile.objects.all()
-#         return result
-
-# class ModuleSubscribe(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     plant = models.ForeignKey(Plant, on_delete=models.CASCADE)
-#     price = models.DecimalField(max_digits=1, decimal_places=0)
-#     title = models.CharField(max_length=100)
-#     picture = CloudinaryField(blank=True)
-#     content = models.TextField(blank=True)
-
-
-    
-#     def __str__(self):  
-
-#         return str(self.title) 
-
-
-# class Agents(models.Model):
-#     name = models.CharField(max_length=100)
-#     location = PlainLocationField(based_fields=['city'], zoom=7)
-#     harvest = models.CharField(max_length=255)
-#     inputs = models.ForeignKey(Input, on_delete=models.CASCADE)
-
-
-#     def __str__(self):  
-#         return str(self.name) 
