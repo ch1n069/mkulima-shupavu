@@ -17,6 +17,11 @@ from django.contrib import admin
 from django.urls import path,include
 from rest_framework_simplejwt import views as jwt_views
 
+
+admin.site.site_header = 'Super Mkulima Admin'
+admin.site.site_title = 'Super Mkulima Admin'
+admin.site.index_title = 'Super Mkulima Admin'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),

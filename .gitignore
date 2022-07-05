@@ -2,7 +2,9 @@
 .env
 virtual/
 
+/migrations
 migrations/
+.migrations
 
 virtual 
 env/
