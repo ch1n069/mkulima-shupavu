@@ -14,8 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+
 from django.urls import path,include,re_path
 from rest_framework_simplejwt import views as jwt_views
+
 
 
 urlpatterns = [
@@ -27,4 +29,12 @@ urlpatterns = [
     path('api/', include('core.urls', namespace='api')),
     
     
+
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name = 'token_refresh'),
+
 ]
+
+# api/token/ provides access for a 5 minute period token before expiry
+# api/token/refresh/ provides access for a 24 hour period token before expiry
+
