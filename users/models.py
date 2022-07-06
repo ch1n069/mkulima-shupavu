@@ -1,6 +1,7 @@
-from pickle import FALSE
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.base_user import AbstractBaseUser
+from .managers import CustomUserManager
 # from cloudinary.models import CloudinaryField
 
 # Create your models here.
@@ -35,9 +36,9 @@ class Inputs(models.Model):
     fertilizer_bags = models.IntegerField(null=True)
     seedlings_bags = models.IntegerField(null=True)
     chemicals = models.IntegerField(null=True)
-    fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20)
-    seedlings_price = models.DecimalField(decimal_places=2, max_digits=20)
-    chemicals_price = models.DecimalField(decimal_places=2, max_digits=20)
+    fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    seedlings_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    chemicals_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     
     def __str__(self):      
         return str(self.fertilizer_name, self.chemical_name, self.seedlings_name) 
@@ -65,11 +66,14 @@ class Role(models.Model):
     BUYER = 2
     AGENT = 3
     SUPPLIER = 4
+    ADMIN = 5
     ROLE_CHOICES = (
         (FARMER, 'farmer'),
         (BUYER, 'buyer'),
         (SUPPLIER, 'supplier'),
-        (AGENT, 'agent'),        
+        (AGENT, 'agent'),  
+        (ADMIN, 'admin')
+              
     )
     
     id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
@@ -78,22 +82,39 @@ class Role(models.Model):
         return self.get_id_display()
 
 # model to represent different user types of the application
-class User(AbstractUser):
+# abstract base user reqires more fields, required fields as well as specification of username
+class User(AbstractBaseUser, PermissionsMixin):
     '''
     class user assumes multiple users of the application
     contact, location and username are relevant to all users. So we add these extra fields here
     Args: 
         is_farmer, is_buyer, is_supplier, is_agent are multiple users with different roles
         roles extends the roles of the users in a many to many relationship if one user can have another role
+        username, contact, location
     '''
-    is_farmer = models.BooleanField(default=False)
-    is_buyer = models.BooleanField(default=False)
-    is_supplier = models.BooleanField(default=False)
-    is_agent = models.BooleanField(default=False)
+    # is_farmer = models.BooleanField(default=False)
+    # is_buyer = models.BooleanField(default=False)
+    # is_supplier = models.BooleanField(default=False)
+    # is_agent = models.BooleanField(default=False)
+    first_name = models.CharField(max_length=255, null=False, default = '')
+    last_name = models.CharField(max_length=255, null=False, default = '')
     username = models.CharField(max_length=255, null=False, default = '')
+    email = models.EmailField(unique=True)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
-    roles = models.ManyToManyField(Role)
+    roles = models.ManyToManyField(to = 'role')
+    is_staff = models.BooleanField(default = False)
+    is_active = models.BooleanField(default = False)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    
+    objects = CustomUserManager()
+    
+    def __str__(self):
+        return self.email
+    
+    
 
 # guarantor class
 class Guarantor(models.Model):
@@ -162,7 +183,7 @@ class Supplier(models.Model):
         user_details, inputs_details, inputs_total, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    inputs_details = models.ManyToManyField(Inputs, through='Agent')
+    # inputs_details = models.ManyToManyField(Inputs, through='Agent')
     inputs_total = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
     
@@ -189,22 +210,22 @@ class Buyer(models.Model):
         amount = crop_price * self.bags_to_buy
         return amount 
 
-class Agent(models.Model):
-    '''
-    agent is the agricultural extension officer who trains farmers in their location
-    as well as keeps an inventory of produce from farmers and inputs supplied by suppliers
-    within their location
-    Args:
-        user_details, farmer_supervising, farmers_allocated, inputs_record
-    '''
-    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    farmer_supervising = models.ForeignKey(Farmer, on_delete=models.CASCADE)
-    farmers_allocated = models.IntegerField(null=True)
-    inputs_record = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-    # harvest_record = models.ForeignKey()
+# class Agent(models.Model):
+#     '''
+#     agent is the agricultural extension officer who trains farmers in their location
+#     as well as keeps an inventory of produce from farmers and inputs supplied by suppliers
+#     within their location
+#     Args:
+#         user_details, farmer_supervising, farmers_allocated, inputs_record
+#     '''
+#     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+#     farmer_supervising = models.ForeignKey(Farmer, on_delete=models.CASCADE)
+#     farmers_allocated = models.IntegerField(null=True)
+#     inputs_record = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+#     # harvest_record = models.ForeignKey()
     
-    def __str__(self):
-        return str(self.farmers_allocated)
+#     def __str__(self):
+#         return str(self.farmers_allocated)
     
     
     
