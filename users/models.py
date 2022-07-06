@@ -11,7 +11,7 @@ class User(AbstractUser):
     # is_farmer = models.BooleanField(default=False)
     is_supplier = models.BooleanField(default=False)
     is_buyer = models.BooleanField(default=False)
-    # is_agent = models.BooleanField(default=False)
+  
 
     def __str__(self):
         return self.username
@@ -26,13 +26,13 @@ class Supplier(models.Model):
     Args:
         user_details, inputs_details, inputs_total, invoice
     '''
-    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_details = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
+    contact = models.BigIntegerField (null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = '')
     # inputs_details = models.ForeignKey(Inputs, on_delete=models.CASCADE)
-    inputs_total = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
+    inputs_total = models.BigIntegerField (null=True)
+    invoice = models.DecimalField(decimal_places=2, max_digits=20,blank=True,null=True)
     
     def __str__(self):      
         return str(self.invoice) 
@@ -45,11 +45,11 @@ class Buyer(models.Model):
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     username = models.CharField(max_length=255, null=False, default = '')
-    contact = models.IntegerField(null=False, default = 0)
+    contact = models.BigIntegerField (null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = '')
     crop_to_buy = models.CharField(max_length=255, null=False)
-    bags_to_buy = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
+    bags_to_buy = models.BigIntegerField (null=True)
+    invoice = models.DecimalField(decimal_places=2, max_digits=20, null=True)
     
     def __str__(self):      
         return str(self.invoice) 

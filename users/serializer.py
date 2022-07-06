@@ -22,9 +22,9 @@ class SupplierCustomRegistrationSerializer(RegisterSerializer):
 
     def save(self, request):
         user = super(SupplierCustomRegistrationSerializer, self).save(request)
-        user.is_seller = True
+        user.is_supplier = True
         user.save()
-        supplier = Supplier(seller=user, location=self.cleaned_data.get('location'), 
+        supplier = Supplier(user_details=user, location=self.cleaned_data.get('location'), 
                 username=self.cleaned_data.get('username'),
                 contact=self.cleaned_data.get('contact'))
         supplier.save()
@@ -57,10 +57,13 @@ class BuyerCustomRegistrationSerializer(RegisterSerializer):
         user = super(BuyerCustomRegistrationSerializer, self).save(request)
         user.is_buyer = True
         user.save()
-        buyer = Buyer(buyer=user,country=self.cleaned_data.get('location'),
+        buyer = Buyer(user_details=user,location=self.cleaned_data.get('location'),
                 username=self.cleaned_data.get('username'),
                 contact=self.cleaned_data.get('contact'),
                 crop_to_buy=self.cleaned_data.get('crop_to_buy'),
                 bags_to_buy=self.cleaned_data.get('bags_to_buy'))
         buyer.save()
         return user
+
+
+# login user-seler,buyer and farmer

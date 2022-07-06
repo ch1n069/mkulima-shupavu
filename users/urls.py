@@ -6,9 +6,9 @@ from .views import SupplierRegistrationView, BuyerRegistrationView
 
 urlpatterns = [
     path('', views.home , name='home'),
-    # path('api/register', RegisterApi.as_view()),
+ 
      #Registration Urls
-    path('registration/supplier/', SupplierRegistrationView.as_view(), name='register-seller'),
+    path('registration/supplier/', SupplierRegistrationView.as_view(), name='register-supplier'),
     path('registration/buyer/', BuyerRegistrationView.as_view(), name='register-buyer'),
     
 ]
