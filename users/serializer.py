@@ -59,8 +59,8 @@ class BuyerCustomRegistrationSerializer(RegisterSerializer):
         user.save()
         buyer = Buyer(buyer=user,country=self.cleaned_data.get('location'),
                 username=self.cleaned_data.get('username'),
-                username=self.cleaned_data.get('contact'),
-                username=self.cleaned_data.get('crop_to_buy'),
-                contact=self.cleaned_data.get('bags_to_buy'))
+                contact=self.cleaned_data.get('contact'),
+                crop_to_buy=self.cleaned_data.get('crop_to_buy'),
+                bags_to_buy=self.cleaned_data.get('bags_to_buy'))
         buyer.save()
         return user
