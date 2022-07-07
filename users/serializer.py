@@ -1,8 +1,10 @@
 from rest_framework import serializers
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import Farmer, Buyer, Supplier, User
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
+
 
 # farmer class serializer
 class FarmerSerializer(serializers.ModelSerializer):
@@ -82,8 +84,10 @@ class UserLoginSerializer(serializers.Serializer):
     
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
+
         model = User
         fields = (
             'email',
             'role'
         )
+

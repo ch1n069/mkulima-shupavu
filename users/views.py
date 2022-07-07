@@ -1,4 +1,7 @@
+
+from django.http import HttpResponse
 from django.shortcuts import render
+
 from users.models import Farmer, Buyer, Supplier
 from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer
 from rest_framework.response import Response
@@ -8,6 +11,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from users.serializer import * 
 from users.models import User
 
+
+class BuyerRegistrationView(RegisterView):
+    serializer_class = BuyerCustomRegistrationSerializer
 # Create your views here.
 class FarmerData(APIView):
     # allow access to only authenticated users
@@ -92,9 +98,10 @@ class UserListView(APIView):
                 'message': 'Successfully fetched users',
                 'users': serializer.data
 
+
             }
         return Response(response, status=status.HTTP_200_OK)
-        
+
 # class BuyerData(APIView):
 #     permission_classes = (IsAuthenticated,)
 #     def get(self, request, format = None):
@@ -120,3 +127,4 @@ class UserListView(APIView):
 #             serializers.save()
 #             return Response(serializers.data, status = status.HTTP_201_CREATED)
 #         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+
