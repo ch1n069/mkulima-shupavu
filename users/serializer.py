@@ -29,7 +29,7 @@ class SupplierSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'contact', 'location', 'roles']
+        fields = ['username', 'contact', 'location', 'role']
 
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):

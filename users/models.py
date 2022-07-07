@@ -32,12 +32,12 @@ class Inputs(models.Model):
     '''
     fertilizer_name = models.CharField(max_length=255, default = 'fertilizer')
     chemical_name = models.CharField(max_length=255, default='pesticide')
-    seedlings_name = models.CharField(max_length=255, default='certified seed')
+    seed_name = models.CharField(max_length=255, default='certified seed')
     fertilizer_bags = models.IntegerField(null=True)
-    seedlings_bags = models.IntegerField(null=True)
+    seed_bags = models.IntegerField(null=True)
     chemicals = models.IntegerField(null=True)
     fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
-    seedlings_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    seed_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     chemicals_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     
     def __str__(self):      
@@ -102,7 +102,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
-    roles = models.ManyToManyField(to = 'role')
+    role = models.ManyToManyField(to = 'role')
+    is_superuser = models.BooleanField(default = False)
     is_staff = models.BooleanField(default = False)
     is_active = models.BooleanField(default = False)
     
