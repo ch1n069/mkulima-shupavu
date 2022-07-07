@@ -21,7 +21,7 @@ class Crop(models.Model):
     price = models.IntegerField(null=False)
     
     def __str__(self):      
-        return str(self.name, self.price) 
+        return str(self.name) 
 
 # input class
 class Inputs(models.Model):
@@ -115,7 +115,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
     
-    
 
 # guarantor class
 class Guarantor(models.Model):
@@ -132,6 +131,13 @@ class Guarantor(models.Model):
     
     def __str__(self):      
         return str(self.identification_number) 
+
+# loan class
+# class Loan(models.Model):
+#     '''
+#     defines the loan that a farmer applies for
+#     '''
+#     user
 
 # farmer class
 class Farmer(models.Model):
