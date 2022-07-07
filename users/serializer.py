@@ -8,7 +8,7 @@ from django.contrib.auth.models import update_last_login
 class FarmerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farmer
-        fields = ['user_details', 'username', 'contact', 'location', 'identification_number', 'mpesa_statements', 'identification_card', 'loan_amount', 'production', 'land_size', 'revenue', 'amount_payable']
+        fields = ['user_details', 'identification_number', 'mpesa_statements', 'identification_card', 'loan_amount', 'production', 'land_size', 'revenue', 'amount_payable']
         
         
 class BuyerSerializer(serializers.ModelSerializer):
