@@ -1,27 +1,15 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render
-from users.models import *
 
-from django.contrib.auth.models import User
-from rest_framework import generics, permissions, mixins 
-from rest_framework import status
-
+from users.models import Farmer, Buyer, Supplier
+from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authentication import get_authorization_header
-from rest_framework.permissions import IsAuthenticated 
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from .serializer import RegisterSerializer, UserSerializer
-from users.serializer import *
-
-from rest_auth.registration.views import RegisterView
-from .serializer import (
-    SupplierCustomRegistrationSerializer, BuyerCustomRegistrationSerializer
-    )
-
-class SupplierRegistrationView(RegisterView):
-    serializer_class = SupplierCustomRegistrationSerializer
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from users.serializer import * 
+from users.models import User
 
 
 class BuyerRegistrationView(RegisterView):
@@ -41,24 +29,78 @@ class FarmerData(APIView):
             serializers.save()
             return Response(serializers.data, status = status.HTTP_201_CREATED)
         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
+    
+class AuthUserRegistrationView(APIView):
+    serializer_class = UserRegisterSerializer
+    permission_classes = (AllowAny, )
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'User successfully registered!',
+                'user': serializer.data
+            }
+
+            return Response(response, status=status_code) 
+
+class AuthUserLoginView(APIView):
+    serializer_class = UserLoginSerializer
+    permission_classes = (AllowAny, )
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+
+        if valid:
+            status_code = status.HTTP_200_OK
+
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'User logged in successfully',
+                'access': serializer.data['access'],
+                'refresh': serializer.data['refresh'],
+                'authenticatedUser': {
+                    'email': serializer.data['email'],
+                    'role': serializer.data['role']
+                }
+            }
+
+        return Response(response, status=status_code)
+
+class UserListView(APIView):
+    serializer_class = UserListSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        if user.role == 1 or user.role == 2 or user.role == 3 or user.role == 4:
+            response = {
+                'success': False,
+                'status_code': status.HTTP_403_FORBIDDEN,
+                'message': 'You are not authorized to perform this action'
+            }
+            return response(response, status.HTTP_403_FORBIDDEN)
+        else:
+            users = User.objects.all()
+            serializer = self.serializer_class(users, many=True)
+            response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched users',
+                'users': serializer.data
 
 
-def home(request):
-    return render(request, 'home.html')
-
-
-
-# #Register API
-# class RegisterApi(generics.GenericAPIView):
-#     serializer_class = RegisterSerializer
-#     def post(self, request, *args,  **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-#         user = serializer.save()
-#         return Response({
-#             "user": UserSerializer(user,    context=self.get_serializer_context()).data,
-#             "message": "User Created Successfully.  Now perform Login to get your token",
-#         })
+            }
+        return Response(response, status=status.HTTP_200_OK)
 
 # class BuyerData(APIView):
 #     permission_classes = (IsAuthenticated,)

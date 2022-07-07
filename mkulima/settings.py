@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -114,9 +115,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mkulima',
-        'USER': 'wanjeri',
-        'PASSWORD': 'pass123',
-        'HOST': 'localhost',
+
+        'USER': 'wayne',
+        'PASSWORD': '123',
+        'HOST': 'localhost'
 
     }
 }
@@ -141,6 +143,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# password hashers
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.ScryptPasswordHasher',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -175,14 +185,42 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # jwt settings
+# REST framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+    ),
+}
+
+# Configure the JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 # extending auth user model to override the native User model in django
 # objective is to have multiple users in the system
 # mkulima is the application name and User is the django model to be used as the user model
-AUTH_USER_MODEL = 'mkulima.User'
+
+AUTH_USER_MODEL = 'users.User'
+
+#Authentication backends
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+    )
 

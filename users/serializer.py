@@ -1,79 +1,16 @@
 from rest_framework import serializers
 
-from rest_auth.registration.serializers import RegisterSerializer
-from rest_framework.authtoken.models import Token
-from users.models import *
-
-
-from .models import Supplier, Buyer
-
-class SupplierCustomRegistrationSerializer(RegisterSerializer):
-    user_detail = serializers.PrimaryKeyRelatedField(read_only=True,) #by default allow_null = False
-    username = serializers.CharField(required=True)
-    contact = serializers.CharField(required=True)
-    location = serializers.CharField(required=True)
-    
-    def get_cleaned_data(self):
-            data = super(SupplierCustomRegistrationSerializer, self).get_cleaned_data()
-            extra_data = {
-                'username' : self.validated_data.get('username', ''),
-                'contact' : self.validated_data.get('contact', ''),
-                'location': self.validated_data.get('location', ''),
-            }
-            data.update(extra_data)
-            return data
-
-    def save(self, request):
-        user = super(SupplierCustomRegistrationSerializer, self).save(request)
-        user.is_seller = True
-        user.save()
-        supplier = Supplier(seller=user, location=self.cleaned_data.get('location'), 
-                username=self.cleaned_data.get('username'),
-                contact=self.cleaned_data.get('contact'))
-        supplier.save()
-        return user
-
-
-class BuyerCustomRegistrationSerializer(RegisterSerializer):
-    user_detail = serializers.PrimaryKeyRelatedField(read_only=True,) #by default allow_null = False
-    username = serializers.CharField(required=True)
-    contact = serializers.CharField(required=True)
-    location = serializers.CharField(required=True)
-    crop_to_buy = serializers.CharField(required=True)
-    bags_to_buy = serializers.CharField(required=True)
- 
-
-    def get_cleaned_data(self):
-            data = super(BuyerCustomRegistrationSerializer, self).get_cleaned_data()
-            extra_data = {
-                'username' : self.validated_data.get('username', ''),
-                'contact' : self.validated_data.get('contact', ''),
-                'location' : self.validated_data.get('location', ''),
-                'crop_to_buy' : self.validated_data.get('crop_to_buy', ''),
-                'bags_to_buy' : self.validated_data.get('bags_to_buy', ''),
-           
-            }
-            data.update(extra_data)
-            return data
-
-    def save(self, request):
-        user = super(BuyerCustomRegistrationSerializer, self).save(request)
-        user.is_buyer = True
-        user.save()
-        buyer = Buyer(buyer=user,country=self.cleaned_data.get('location'),
-                username=self.cleaned_data.get('username'),
-                username=self.cleaned_data.get('contact'),
-                username=self.cleaned_data.get('crop_to_buy'),
-                contact=self.cleaned_data.get('bags_to_buy'))
-        buyer.save()
-        return user
+from rest_framework_simplejwt.tokens import RefreshToken
+from users.models import Farmer, Buyer, Supplier, User
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import update_last_login
 
 
 # farmer class serializer
 class FarmerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farmer
-        fields = ['user_details', 'username', 'contact', 'location', 'identification_number', 'mpesa_statements', 'identification_card', 'loan_amount', 'production', 'land_size', 'revenue', 'amount_payable']
+        fields = ['user_details', 'identification_number', 'mpesa_statements', 'identification_card', 'loan_amount', 'production', 'land_size', 'revenue', 'amount_payable']
         
         
 class BuyerSerializer(serializers.ModelSerializer):
@@ -86,8 +23,71 @@ class SupplierSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = ['user_details', 'inputs_details', 'inputs_total', 'invoice']
         
-class AgentSerializer(serializers.ModelSerializer):
+# class AgentSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Agent
+#         fields = ['user_details', 'farmer_supervising', 'farmers_allocated']                
+        
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Agent
-        fields = ['user_details', 'farmer_supervising', 'farmers_allocated']                
+        model = User
+        fields = ['username', 'contact', 'location', 'role']
+
+# # user registration and authentication
+class UserRegisterSerializer(serializers.ModelSerializer):
+    # username = serializers.CharField()
+    # password = serializers.CharField()
+    
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'username', 'email', 'password')
+        
+    def create(self, validated_data):
+        auth_user = User.objects.create_user(**validated_data)
+        return auth_user
+    
+# user login
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(max_length=128, write_only=True)
+    access = serializers.CharField(read_only=True)
+    refresh = serializers.CharField(read_only=True)
+    role = serializers.CharField(read_only=True)
+    
+    def create(self, validated_date):
+        pass
+    def update(self, instance, validated_data):
+        pass
+    def validate(self, data):
+        email = data['email']
+        password = data['password']
+        user = authenticate(email=email, password=password)
+        
+        # user.save()
+        print(user)
+        if user is None:
+            raise serializers.ValidationError("Non existent user")
+        try:
+            refresh = RefreshToken.for_user(user)
+            refresh_token = str(refresh)
+            access_token = str(refresh.access_token)
+            update_last_login(None, user)
+            validation = {
+                'access': access_token,
+                'refresh': refresh_token,
+                'email': user.email,
+                'role': user.role,
+            }
+            return validation
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User is not registered")
+    
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+
+        model = User
+        fields = (
+            'email',
+            'role'
+        )
 
