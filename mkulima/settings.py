@@ -41,16 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # third parties libraries
-    'phonenumber_field',
-    'location_field.apps.DefaultConfig',
+    'rest_framework_simplejwt',
     'rest_framework',
-    'rest_framework.authtoken',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'rest_auth',
-    'rest_auth.registration',
-    'rest_framework',
+    # 'rest_framework.authtoken',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'rest_auth',
+    # 'rest_auth.registration',
+   
 
     # own 
     'users',
