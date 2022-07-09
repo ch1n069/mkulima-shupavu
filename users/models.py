@@ -56,14 +56,24 @@ class Inputs(models.Model):
     def total_seed_amount(self):
         amount = self.seedlings_bags * self.seedlings_price
         return amount 
-    
 
-# if users can assume multiple roles, ie farmer can be a supplier, then we will add an
-# extra table and use a many to many relationship in the User model
-class Role(models.Model):
+# model to represent different user types of the application
+# abstract base user reqires more fields, required fields as well as specification of username
+class User(AbstractBaseUser, PermissionsMixin):
     '''
-    These role entries are managed by the system automatically and are created during a migration
+    class user assumes multiple users of the application
+    contact, location and username are relevant to all users. So we add these extra fields here
+    Args: 
+        first_name, last_name, username, email, contact, location, role
+        roles extends the roles of the users in a many to many relationship if one user can have another role
+        
     '''
+    
+    # these fields are tied to the user roles 
+    # brought these fields in the model class becuase the roles are empty on registering a user i.e role = []
+    # makes it even easier to use django Managers if need be
+    # defining the choices and names for each choice inside the model class 
+    # keeps all of that information with the class that uses it, and helps reference the choices ie User.FARMER
     FARMER = 1
     BUYER = 2
     AGENT = 3
@@ -74,37 +84,16 @@ class Role(models.Model):
         (BUYER, 'buyer'),
         (SUPPLIER, 'supplier'),
         (AGENT, 'agent'),  
-        (ADMIN, 'admin')
-              
+        (ADMIN, 'admin')              
     )
     
-    id = models.PositiveSmallIntegerField(choices=ROLE_CHOICES, primary_key=True)
-    
-    def __str__(self):
-        return self.get_id_display()
-
-# model to represent different user types of the application
-# abstract base user reqires more fields, required fields as well as specification of username
-class User(AbstractBaseUser, PermissionsMixin):
-    '''
-    class user assumes multiple users of the application
-    contact, location and username are relevant to all users. So we add these extra fields here
-    Args: 
-        is_farmer, is_buyer, is_supplier, is_agent are multiple users with different roles
-        roles extends the roles of the users in a many to many relationship if one user can have another role
-        username, contact, location
-    '''
-    # is_farmer = models.BooleanField(default=False)
-    # is_buyer = models.BooleanField(default=False)
-    # is_supplier = models.BooleanField(default=False)
-    # is_agent = models.BooleanField(default=False)
     first_name = models.CharField(max_length=255, null=False, default = '')
     last_name = models.CharField(max_length=255, null=False, default = '')
     username = models.CharField(max_length=255, null=False, default = '')
     email = models.EmailField(unique=True)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
-    role = models.ManyToManyField(to = 'role')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, null = False, default=FARMER)
     is_superuser = models.BooleanField(default = False)
     is_staff = models.BooleanField(default = False)
     is_active = models.BooleanField(default = False)
@@ -193,9 +182,7 @@ class Supplier(models.Model):
         user_details, inputs_details, inputs_total, invoice
     '''
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    # inputs_details = models.ManyToManyField(Inputs, through='Agent')
-
+    user_details = models.OneToOneField(Inputs, on_delete=models.CASCADE)
     inputs_total = models.IntegerField(null=True)
     invoice = models.DecimalField(decimal_places=2, max_digits=20)
     

@@ -7,21 +7,33 @@ from django.contrib.auth.models import update_last_login
 
 
 # farmer class serializer
-class FarmerSerializer(serializers.ModelSerializer):
+class FarmerSerializer(serializers.HyperlinkedModelSerializer):
+    # hyperlinkedmodelserializer works like modelserializer but returns url instead of pk
+    # by default it includes a url field
+    url = serializers.HyperlinkedIdentityField(view_name='farmer')
+    
     class Meta:
         model = Farmer
-        fields = ['user_details', 'identification_number', 'mpesa_statements', 'identification_card', 'loan_amount', 'production', 'land_size', 'revenue', 'amount_payable']
+        fields = ['url', 'user_details', 'identification_number', 'mpesa_statements', 'identification_card',
+                 'land_size']
+        read_only_fields = ['loan_amount', 'production', 'revenue', 'amount_payable']
         
         
 class BuyerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Buyer
-        fields = ['user_details', 'crop_to_buy', 'bags_to_buy', 'invoice']
+        fields = ['user_details', 'crop_to_buy', 'bags_to_buy']
+        read_only_fields = ['invoice']
         
 class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supplier
-        fields = ['user_details', 'inputs_details', 'inputs_total', 'invoice']
+        # The value source='*' has a special meaning, and is used to indicate that the entire object should be passed through
+        # to the field. This can be useful for creating nested representations, or for fields which require access 
+        # to the complete object in order to determine the output representation.
+        supplier_details = serializers.CharField(source = '*')
+        fields = ['user_details', 'inputs_details']
+        read_only_fields = ['invoice', 'inputs_total']
         
 # class AgentSerializer(serializers.ModelSerializer):
 #     class Meta:
@@ -32,7 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'contact', 'location', 'role']
-
+        extra_kwargs = {"password": {'write_only': True}}
+        
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
     # username = serializers.CharField()
@@ -40,10 +53,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'password')
+        fields = ('first_name', 'last_name', 'username', 'email', 'role', 'password')
+        extra_kwargs = {"password": {'write_only': True}}
         
     def create(self, validated_data):
         auth_user = User.objects.create_user(**validated_data)
+        auth_user.set_password(validated_data['password'])
+        auth_user.save()
         return auth_user
     
 # user login
@@ -54,7 +70,7 @@ class UserLoginSerializer(serializers.Serializer):
     refresh = serializers.CharField(read_only=True)
     role = serializers.CharField(read_only=True)
     
-    def create(self, validated_date):
+    def create(self, validated_data):
         pass
     def update(self, instance, validated_data):
         pass
