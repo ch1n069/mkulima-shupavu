@@ -1,8 +1,10 @@
 from rest_framework import serializers
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import Farmer, Buyer, Supplier, User
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
+
 
 # farmer class serializer
 class FarmerSerializer(serializers.HyperlinkedModelSerializer):
@@ -42,7 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'contact', 'location', 'role']
-
+        extra_kwargs = {"password": {'write_only': True}}
+        
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
     # username = serializers.CharField()
@@ -97,8 +100,10 @@ class UserLoginSerializer(serializers.Serializer):
     
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
+
         model = User
         fields = (
             'email',
             'role'
         )
+

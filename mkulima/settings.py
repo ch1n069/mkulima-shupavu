@@ -39,11 +39,41 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # third parties libraries
+    'phonenumber_field',
+    'location_field.apps.DefaultConfig',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'rest_auth',
+    'rest_auth.registration',
     'rest_framework',
 
     # own 
     'users',
+    
 ]
+
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+        # allows access to a particular endpoint
+        
+    )
+
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -85,11 +115,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mkulima',
+
         'USER': 'wayne',
         'PASSWORD': '123',
         'HOST': 'localhost'
+
     }
 }
+
 
 
 # Password validation
@@ -130,6 +163,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+SITE_ID = 1
+AUTH_USER_MODEL = "users.USER"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -139,6 +175,9 @@ STATICFILES_DIR = (os.path.join(BASE_DIR, 'static'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
+
+
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -177,6 +216,7 @@ SIMPLE_JWT = {
 # extending auth user model to override the native User model in django
 # objective is to have multiple users in the system
 # mkulima is the application name and User is the django model to be used as the user model
+
 AUTH_USER_MODEL = 'users.User'
 
 #Authentication backends

@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticate
 from users.serializer import * 
 from users.models import User
 
+
 # Create your views here.
 class FarmerData(APIView):
     '''
@@ -173,6 +174,32 @@ class UserListView(viewsets.ModelViewSet):
         #         'message': 'Successfully fetched users',
         #         'users': serializer.data
 
-        #     }
-        # return Response(response, status=status.HTTP_200_OK)
-        
+
+         
+
+# class BuyerData(APIView):
+#     permission_classes = (IsAuthenticated,)
+#     def get(self, request, format = None):
+#         buyer_data = Buyer.objects.all()
+#         serializers = BuyerSerializer(buyer_data, many=True)
+#         return Response(serializers.data)
+#     def post(self, request, format = None):
+#         serializers = BuyerSerializer(data = request.data)
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data, status = status.HTTP_201_CREATED)
+#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
+    
+# class SupplierData(APIView):
+#     permission_classes = (IsAuthenticated,)
+#     def get(self, request, format = None):
+#         supplier_data = Supplier.objects.all()
+#         serializers = SupplierSerializer(supplier_data, many=True)
+#         return Response(serializers.data)
+#     def post(self, request, format = None):
+#         serializers = SupplierSerializer(data = request.data)
+#         if serializers.is_valid():
+#             serializers.save()
+#             return Response(serializers.data, status = status.HTTP_201_CREATED)
+#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+
