@@ -43,9 +43,10 @@ class SupplierSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'contact', 'location', 'role']
+        fields = '__all__'
         extra_kwargs = {"password": {'write_only': True}}
-        exclude = ('date_joined', 'last_login')
+        fieldsets = (None)
+        # exclude = ['date_joined', 'last_login']
         
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
