@@ -1,10 +1,10 @@
 from rest_framework import serializers
-
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import Farmer, Buyer, Supplier, User
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
-
+from django.contrib.auth.password_validation import validate_password
+from rest_framework.validators import UniqueValidator
 
 # farmer class serializer
 class FarmerSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,21 +45,32 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'contact', 'location', 'role']
         extra_kwargs = {"password": {'write_only': True}}
+        exclude = ('date_joined', 'last_login')
         
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
-    # username = serializers.CharField()
-    # password = serializers.CharField()
+    email = serializers.EmailField(required = True, validators = [UniqueValidator(queryset=User.objects.all())])
+    role = serializers.ChoiceField(choices = User.ROLE_CHOICES, required = True) 
+    password = serializers.CharField(required = True, validators = [validate_password])
+    confirm_password  = serializers.CharField(required = True)
+    
     
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username', 'email', 'role', 'password')
-        extra_kwargs = {"password": {'write_only': True}}
+        fields = ('first_name', 'last_name', 'username', 'email', 'role', 'password', 'confirm_password')
+        extra_kwargs = {"password": {'write_only': True}, "confirm_password": {'write_only': True}}
         
+    
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({'password': "Password fields did not match"})
+        return attrs 
+    
     def create(self, validated_data):
-        auth_user = User.objects.create_user(**validated_data)
-        auth_user.set_password(validated_data['password'])
+        auth_user = User.objects.create(**validated_data)
+        auth_user.set_password(validated_data['password']) 
         auth_user.save()
+
         return auth_user
     
 # user login

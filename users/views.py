@@ -110,7 +110,13 @@ class AuthUserRegistrationView(APIView):
                 'success': True,
                 'statusCode': status_code,
                 'message': 'User successfully registered!',
-                'user': serializer.data
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                   'last_name': serializer.data['last_name'],
+                   'username' :serializer.data['username'],
+                   'email': serializer.data['email'],
+                   'role': serializer.data['role'],
+                }
             }
 
             return Response(response, status=status_code) 
