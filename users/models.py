@@ -87,13 +87,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         (ADMIN, 'admin')              
     )
     
+    USER_TYPE_DEFAULT = None
+    
     first_name = models.CharField(max_length=255, null=False, default = '')
     last_name = models.CharField(max_length=255, null=False, default = '')
     username = models.CharField(max_length=255, null=False, default = '')
     email = models.EmailField(unique=True)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, null = False, default=FARMER)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    password  = models.CharField(max_length=255)
+    confirm_password  = models.CharField(max_length=255)
     is_superuser = models.BooleanField(default = False)
     is_staff = models.BooleanField(default = False)
     is_active = models.BooleanField(default = False)
