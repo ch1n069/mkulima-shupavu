@@ -117,18 +117,27 @@ class User(AbstractBaseUser, PermissionsMixin):
     
 # profile model 
 class Profile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=120, blank=False)
     last_name = models.CharField(max_length=120, blank=False)
     contact = models.BigIntegerField (null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = '')
     avatar = models.ImageField()
+
+
     def __unicode__(self):
         return u'Profile of user: {0}'.format(self.user.email)
-def create_profile(sender, instance, created, **kwargs):
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-post_save.connect(create_profile, sender=User)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
 def delete_user(sender, instance=None, **kwargs):
     try:
         instance.user

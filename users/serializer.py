@@ -49,6 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
                 extra_kwargs = {"password": {'write_only': True}}
                 fieldsets = (None)
                 # exclude = ['date_joined', 'last_login']
+                
         
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
