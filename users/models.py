@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from .managers import CustomUserManager
@@ -43,7 +43,7 @@ class Inputs(models.Model):
     chemicals_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     
     def __str__(self):      
-        return str(self.fertilizer_name, self.chemical_name, self.seedlings_name) 
+        return self.fertilizer_name
     
     def total_fert_amount(self):
         amount = self.fertilizer_bags * self.fertilizer_price
@@ -110,6 +110,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
     
+# profile model 
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=120, blank=False )
+    last_name = models.CharField(max_length=120, blank=False)
+    contact = models.BigIntegerField (null=False, default = 0)
+    location = models.CharField(max_length=255, null=False, default = '')
+
+    def __str__(self):
+        return self.user.first_name 
 
 # guarantor class
 class Guarantor(models.Model):
@@ -175,23 +185,6 @@ class Farmer(models.Model):
         farmer_inputs = Farmer.objects.get(inputs = self.inputs_picked)
         return farmer_inputs
     
-    
-
-class Supplier(models.Model):
-    '''
-    supplier provides the inputs to the farmer and is paid promptly depending on the
-    inputs supplied
-    should see their invoice as well as all inputs supplied
-    Args:
-        user_details, inputs_details, inputs_total, invoice
-    '''
-    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    user_details = models.OneToOneField(Inputs, on_delete=models.CASCADE)
-    inputs_total = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
-    
-    def __str__(self):      
-        return str(self.user_details) 
 
 class Buyer(models.Model):
     '''
@@ -216,23 +209,116 @@ class Buyer(models.Model):
         amount = crop_price * self.bags_to_buy
         return amount 
 
-# class Agent(models.Model):
-#     '''
-#     agent is the agricultural extension officer who trains farmers in their location
-#     as well as keeps an inventory of produce from farmers and inputs supplied by suppliers
-#     within their location
-#     Args:
-#         user_details, farmer_supervising, farmers_allocated, inputs_record
-#     '''
-#     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-#     farmer_supervising = models.ForeignKey(Farmer, on_delete=models.CASCADE)
-#     farmers_allocated = models.IntegerField(null=True)
-#     inputs_record = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-#     # harvest_record = models.ForeignKey()
+class Loan(models.Model):
+    '''
+    this is a loan model
+    Args:
+        user_details,id_number, gender, occuputaion, guarantor, inputs, status, location
+    '''
+    Male = 1
+    Female = 2
+    ROLE_CHOICES = [
+        (Male, "Male"),
+        (Female, "Female"),     
+    ]  
     
-#     def __str__(self):
-#         return str(self.farmers_allocated)
+    Pending = 1
+    Approved = 2
+    Rejected = 3
+    LOAN_CHOICES = [
+        (Pending, "Pending"),
+        (Approved, "Approved"),
+        (Rejected, "Rejected"),        
+    ]
+    
+    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+    id_number = models.IntegerField(null=False, default = "None")
+    gender = models.CharField(choices = ROLE_CHOICES, max_length=25, null = False, default = "None")
+    occupation =  models.CharField(max_length=25, null = False, default = "None")
+    guarantor = models.ForeignKey(Guarantor, on_delete=models.CASCADE)
+    inputs = models.ForeignKey(Inputs, on_delete=models.CASCADE)
+    status = models.CharField(choices = LOAN_CHOICES, max_length=25, null = False, default = "None")
+    location =  models.CharField(max_length=25, null = False, default = "None")
+    
+    # harvest_record = models.ForeignKey()
+    
+    def __str__(self):
+        return self.occupation
+    
+class Stock(models.Model):
+    '''
+    Args:
+        fertilizers, fertilizer_bags, seeds, seeds_quantity, pesticides, pesticides_quantity, herbicides, pesticides_quantity
+    '''
+    # fertilizer types
+    DAP = 1
+    CAN = 2
+    UREA = 3
+    
+    FERTILIZER_CHOICES = [
+        (DAP, "DAP"),
+        (CAN, "CAN"),
+        (UREA, "UREA")
+    ]
+    
+    # seeds choices
+    Cabbage = 1
+    Maize = 2
+    Beans = 3
+    
+    SEEDS_CHOICES = [
+        (Cabbage, "Cabbage"),
+        (Maize, "Maize"),
+        (Beans, "Beans")
+    ]
+    
+    # Pesticides choices
+    NeemPro = 1
+    Axial = 2
+    Traxos = 3
+    
+    PESTICIDES_CHOICES = [
+        (NeemPro, "NeemPro"),
+        (Axial, "Axial"),
+        (Traxos, "Traxos")
+    ]
+    
+    # Herbicides choices
+    Lumax = 1
+    PrimaGram = 2
+    
+    HERBICIDES_CHOICES = [
+        (Lumax, "Lumax"),
+        (PrimaGram, "PrimaGram"),
+    ]
+    
+    fertilizers = models.CharField(choices = FERTILIZER_CHOICES, null=True, default = "None")
+    fertilizer_bags = models.IntegerField(null=True)
+    seeds = models.CharField(choices = SEEDS_CHOICES, null=True, default = "None")
+    seeds_quantity = models.IntegerField(null = True)
+    pesticides = models.CharField(choices = PESTICIDES_CHOICES, null=True, default = "None")
+    pesticides_quantity = models.IntegerField(null = True)
+    herbicides = models.CharField(choices = HERBICIDES_CHOICES, null=True, default = "None")
+    pesticides_quantity = models.IntegerField(null = True)
+
     
     
+class Supplier(models.Model):
+    '''
+    supplier provides the inputs to the farmer and is paid promptly depending on the
+    inputs supplied
+    should see their invoice as well as all inputs supplied
+    Args:
+        user_details, loan_details, inventory
+    '''
+    
+    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+    loan_details = models.ForeignKey(Loan, on_delete = models.CASCADE)
+    inventory = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    
+    
+    
+    def __str__(self):      
+        return self.user_details
     
     

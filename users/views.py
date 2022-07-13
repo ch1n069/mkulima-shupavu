@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
-from users.models import Farmer, Buyer, Supplier
-from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer
+from users.models import Farmer, Buyer, Supplier, Stock, Loan, Profile
+from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer, ProfileSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, viewsets, permissions
@@ -119,7 +119,7 @@ class AuthUserRegistrationView(APIView):
                 }
             }
 
-            return Response(response, status=status_code) 
+        return Response(response, status=status_code) 
 
 class AuthUserLoginView(APIView):
     serializer_class = UserLoginSerializer
@@ -128,7 +128,8 @@ class AuthUserLoginView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
-
+        # data = request.data
+        # print(data)
         if valid:
             status_code = status.HTTP_200_OK
 
@@ -162,7 +163,58 @@ class UserListView(viewsets.ModelViewSet):
         user = get_object_or_404(queryset, pk = pk)
         serializer = UserListSerializer(user)
         return Response(serializer.data)
+
+# user profile view
+class ProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Profile successfully created!',
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                   'last_name': serializer.data['last_name'],
+                #    'username' :serializer.data['username'],
+                   'contact': serializer.data['contact'],
+                   'location': serializer.data['location'],
+                }
+            }
+        return Response(response, status=status_code)
+
+    def retrieve(self, request, pk = None):
+        queryset = Profile.objects.all()
+        user = get_object_or_404(queryset, pk = pk)
+        serializer = ProfileSerializer(user)
+        return Response(serializer.data)
+    
+    # user profile update
+class SingleProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    def get(self, pk=None):
+        return Profile.objects.filter(user=self.request.user.id)
+        # profile = get_object_or_404(self.queryset, pk=pk)
         
+class LoanView(APIView):
+    serializer_class = LoanSerializer
+    queryset = Loan.objects.all()
+    permission_classes = (permissions.IsAdminUser,)
+    
+    def get(self, request, location):
+        query_location = Loan.objects.get(location = location)
+        query_farmer = Farmer.objects.filter
+    
+
         # user = request.user
         # if user.role == 1 or user.role == 2 or user.role == 3 or user.role == 4:
         #     response = {
