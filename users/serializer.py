@@ -59,9 +59,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = User
-        fields = '__all__'
-        # fields = ('first_name', 'last_name', 'username', 'email', 'role', 'password', 'confirm_password')
-        # extra_kwargs = {"password": {'write_only': True}, "confirm_password": {'write_only': True}}
+        # fields = '__all__'
+        fields = ('first_name', 'last_name', 'username', 'email', 'role', 'password', 'confirm_password')
+        extra_kwargs = {"password": {'write_only': True}, "confirm_password": {'write_only': True}}
         
     
     def validate(self, attrs):
@@ -91,7 +91,8 @@ class UserLoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data['email']
         password = data['password']
-        user = authenticate(email=email, password=password)
+        user = User.objects.get(email=email)
+        authenticate(user)
         
         # user.save()
         print(user)

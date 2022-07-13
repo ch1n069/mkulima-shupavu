@@ -5,13 +5,15 @@ from users.models import Farmer, Buyer, Supplier, Inputs, Crop
 from users.models import User 
 
 class UserAdmin(admin.ModelAdmin):
-    exclude = (
-        (None, {
-            'fields': ("Farmer", "Supplier", "Buyer", "Inputs", "Crop")
-        }),
-        ("exclude")
+    # fieldsets = (
+    #     (None, {
+    #         'fields': ("Farmer", "Supplier", "Buyer", "Inputs", "Crop")
+    #     }),
+        exclude = ["fieldsets"]
+
         
-    )
+        
+    
 
 # Register your models here.
 admin.site.register(User, UserAdmin)
