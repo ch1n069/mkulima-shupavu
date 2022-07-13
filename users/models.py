@@ -1,6 +1,7 @@
 from distutils.command.upload import upload
 from django.db import models
 
+
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.forms import DecimalField
@@ -132,7 +133,110 @@ class Profile(models.Model):
     # def __unicode__(self):
     #     return u'Profile of user: {0}'.format(self.user.email)
 
+
+# Create your models here.
+
+# we need four main class models; farmer, buyer, Supplier, agent
+# from these four models, we will have four endpoints for an API
+
+# crop class
+# from this class model, we will be able to come up with the price per crop in harvest
+# price is the market price on harvest
+class Crop(models.Model):
+    '''
+    defines the crops to be grown by the farmer
+    helps define how buyers and farmers connect in terms of crops sold, bought and cultivated
+    '''
+    name = models.CharField(max_length=200, default = '')
+    price = models.IntegerField(null=False)
+    
+    def __str__(self):      
+        return str(self.name) 
+
+# input class
+class Inputs(models.Model):
+    '''
+    defines the inputs that will be converted to a loan
+    gives the name of the input and the inputs amount
+    class will be used by buyer, farmer, supplier and agent
+    '''
+    fertilizer_name = models.CharField(max_length=255, default = 'fertilizer')
+    chemical_name = models.CharField(max_length=255, default='pesticide')
+    seed_name = models.CharField(max_length=255, default='certified seed')
+    fertilizer_bags = models.IntegerField(null=True)
+    seed_bags = models.IntegerField(null=True)
+    chemicals = models.IntegerField(null=True)
+    fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    seed_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    chemicals_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
+    
+    def __str__(self):      
+        return str(self.fertilizer_name, self.chemical_name, self.seedlings_name) 
+    
+    def total_fert_amount(self):
+        amount = self.fertilizer_bags * self.fertilizer_price
+        return amount 
+    
+    def total_chem_amount(self):
+        amount = self.chemicals_price * self.chemicals
+        return amount 
+    
+    def total_seed_amount(self):
+        amount = self.seedlings_bags * self.seedlings_price
+        return amount 
+
+# model to represent different user types of the application
+# abstract base user reqires more fields, required fields as well as specification of username
+class User(AbstractBaseUser, PermissionsMixin):
+    '''
+    class user assumes multiple users of the application
+    contact, location and username are relevant to all users. So we add these extra fields here
+    Args: 
+        first_name, last_name, username, email, contact, location, role
+        roles extends the roles of the users in a many to many relationship if one user can have another role
+        
+    '''
+    
+    # these fields are tied to the user roles 
+    # brought these fields in the model class becuase the roles are empty on registering a user i.e role = []
+    # makes it even easier to use django Managers if need be
+    # defining the choices and names for each choice inside the model class 
+    # keeps all of that information with the class that uses it, and helps reference the choices ie User.FARMER
+    FARMER = 1
+    BUYER = 2
+    AGENT = 3
+    SUPPLIER = 4
+    ADMIN = 5
+    ROLE_CHOICES = (
+        (FARMER, 'farmer'),
+        (BUYER, 'buyer'),
+        (SUPPLIER, 'supplier'),
+        (AGENT, 'agent'),  
+        (ADMIN, 'admin')              
+    )
+    
+    USER_TYPE_DEFAULT = None
+    
+    first_name = models.CharField(max_length=255, null=False, default = '')
+    last_name = models.CharField(max_length=255, null=False, default = '')
+    username = models.CharField(max_length=255, null=False, default = '')
+    email = models.EmailField(unique=True)
+    contact = models.IntegerField(null=False, default = 0)
+    location = models.CharField(max_length=255, null=False, default = 'place')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    password  = models.CharField(max_length=255)
+    confirm_password  = models.CharField(max_length=255)
+    is_superuser = models.BooleanField(default = False)
+    is_staff = models.BooleanField(default = False)
+    is_active = models.BooleanField(default = False)
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
+    
+    objects = CustomUserManager()
+    
     def __str__(self):
+
         return self.user.first_name
 # signals
 # @receiver(post_save, sender=User)
@@ -183,6 +287,7 @@ class Guarantor(models.Model):
 #     defines the loan that a farmer applies for
 #     '''
 #     user
+
 
 # farmer class
 class Farmer(models.Model):
@@ -252,7 +357,9 @@ class Buyer(models.Model):
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     crop_to_buy = models.CharField(max_length=255, null=False)
     bags_to_buy = models.IntegerField(null=True)
+
     invoice = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0))
+
     #crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
 
     

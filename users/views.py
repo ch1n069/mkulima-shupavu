@@ -224,6 +224,7 @@ class ProfileView(viewsets.ModelViewSet):
 #     permission_classes = (IsAuthenticated,)
 #     serializer_class = UpdateUserSerializer
 
+
 class UserListView(viewsets.ModelViewSet):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
@@ -257,6 +258,7 @@ class UserListView(viewsets.ModelViewSet):
         #         'status_code': status.HTTP_200_OK,
         #         'message': 'Successfully fetched users',
         #         'users': serializer.data
+
 
 
          
@@ -296,3 +298,4 @@ class SingleProfileView(viewsets.ModelViewSet):
         return Profile.objects.filter(user=self.request.user.id)
         # profile = get_object_or_404(self.queryset, pk=pk)
         # serializer
+
