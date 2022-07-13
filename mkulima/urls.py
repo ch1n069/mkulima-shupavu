@@ -24,6 +24,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('users.urls')),
     path('api-auth/', include('rest_framework.urls')),
+
+
+
 ]
 
 # api/token/ provides access for a 5 minute period token before expiry

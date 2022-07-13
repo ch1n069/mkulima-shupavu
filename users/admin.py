@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
+
 from users.models import Farmer, Buyer, Supplier, Inputs, Crop, Profile
 from users.models import User 
 
@@ -17,6 +18,8 @@ from users.models import User
 class UserAdmin(admin.ModelAdmin):
     exclude = ["fieldsets"]
 
+
+
 # Register your models here.
 admin.site.register(User, UserAdmin)
 admin.site.register(Farmer)
@@ -27,6 +30,7 @@ admin.site.register(Crop)
 admin.site.register(Profile)
 
 # admin.site.ntregister(Age)
+
 
 
 

@@ -221,6 +221,7 @@ class SingleProfileView(viewsets.ModelViewSet):
 
 
 
+
 class UserListView(viewsets.ModelViewSet):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
@@ -256,6 +257,7 @@ class UserListView(viewsets.ModelViewSet):
         #         'users': serializer.data
 
 
+
          
 
 # class BuyerData(APIView):
@@ -283,3 +285,17 @@ class UserListView(viewsets.ModelViewSet):
 #             serializers.save()
 #             return Response(serializers.data, status = status.HTTP_201_CREATED)
 #         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+
+
+
+# user profile update
+class SingleProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    def get(self, pk=None):
+        return Profile.objects.filter(user=self.request.user.id)
+        # profile = get_object_or_404(self.queryset, pk=pk)
+        # serializer
+
+
