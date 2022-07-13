@@ -1,11 +1,15 @@
+from distutils.command.upload import upload
 from django.db import models
 
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.forms import DecimalField
 from .managers import CustomUserManager
 from django.db.models.signals import post_save,post_delete
 from django.conf import settings
 from django.dispatch import receiver
+
+from decimal import Decimal
 
 
 
@@ -97,7 +101,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255, null=False, default = '')
     last_name = models.CharField(max_length=255, null=False, default = '')
     username = models.CharField(max_length=255, null=False, default = '')
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
@@ -117,35 +121,45 @@ class User(AbstractBaseUser, PermissionsMixin):
     
 # profile model 
 class Profile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=120, blank=False)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, unique=False)
+    first_name = models.CharField(max_length=120, blank=False )
     last_name = models.CharField(max_length=120, blank=False)
     contact = models.BigIntegerField (null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = '')
-    avatar = models.ImageField()
+  
 
 
-    def __unicode__(self):
-        return u'Profile of user: {0}'.format(self.user.email)
+    # def __unicode__(self):
+    #     return u'Profile of user: {0}'.format(self.user.email)
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+    def __str__(self):
+        return self.user.first_name
+# signals
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)
 
+#     if not created:
+#         Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()
 
-def delete_user(sender, instance=None, **kwargs):
-    try:
-        instance.user
-    except User.DoesNotExist:
-        pass
-    else:
-        instance.user.delete()
-post_delete.connect(delete_user, sender=Profile)
+# post_save.connect(create_user_profile, sender=User)
+
+# def delete_user_profile(self,id):
+#     self.objects.filter(id=id).delete()
+
+# def delete_user(sender, instance=None, **kwargs):
+#     try:
+#         instance.user
+#     except User.DoesNotExist:
+#         pass
+#     else:
+#         instance.user.delete()
+# post_delete.connect(delete_user, sender=Profile)
 
 # guarantor class
 class Guarantor(models.Model):
@@ -224,7 +238,7 @@ class Supplier(models.Model):
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     user_details = models.OneToOneField(Inputs, on_delete=models.CASCADE)
     inputs_total = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
+    invoice = models.DecimalField(decimal_places=2, max_digits=20,default=Decimal(0) )
     
     def __str__(self):      
         return str(self.user_details) 
@@ -238,7 +252,7 @@ class Buyer(models.Model):
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     crop_to_buy = models.CharField(max_length=255, null=False)
     bags_to_buy = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
+    invoice = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0))
     #crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
 
     

@@ -12,6 +12,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 # router for the userlistview which is a viewset. the methods are list and retrieve
 router.register(r'api/users', views.UserListView, basename='users list')
+router.register(r'api/profile', views.ProfileView, basename='profile list')
 
 
 urlpatterns = [
@@ -22,6 +23,9 @@ urlpatterns = [
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name = 'token_refresh'),
     path('register', AuthUserRegistrationView.as_view(), name='register'),
     path('login', AuthUserLoginView.as_view(), name='login'),
+    # path('api/profile/', ProfileView.as_view(), name='profile'),
+
+    # path('api/update_profile/<int:pk>/', UpdateProfileView.as_view(), name='auth_update_profile'),
     
     # path('users', UserListView.as_view({'get': 'list'}), name='users')
 ]

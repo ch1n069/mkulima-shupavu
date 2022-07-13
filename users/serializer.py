@@ -1,7 +1,8 @@
 
+from enum import unique
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import Farmer, Buyer, Supplier, User
+from users.models import Farmer, Buyer, Supplier, User, Profile
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
@@ -42,14 +43,20 @@ class SupplierSerializer(serializers.ModelSerializer):
 #         fields = ['user_details', 'farmer_supervising', 'farmers_allocated']                
         
 class UserSerializer(serializers.ModelSerializer):
-        
         class Meta:
                 model = User
                 fields = '__all__'
                 extra_kwargs = {"password": {'write_only': True}}
                 fieldsets = (None)
                 # exclude = ['date_joined', 'last_login']
-                
+
+class ProfileSerializer(serializers.ModelSerializer):
+        # user  = serializers.CharField(required = True)
+
+        class Meta:
+                model = Profile
+                fields = '__all__'
+
         
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -92,9 +99,10 @@ class UserLoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data['email']
         password = data['password']
-        user = authenticate(email=email, password=password)
+        user = User.objects.get(email=email)
+        authenticate(user)
         
-        # user.save()
+        user.save()
         print(user)
         if user is None:
             raise serializers.ValidationError("Non existent user")
