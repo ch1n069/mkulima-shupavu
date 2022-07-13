@@ -120,8 +120,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mkulima',
 
-        'USER': 'wayne',
-        'PASSWORD': '123',
+
+        'USER': 'wanjeri',
+        'PASSWORD': 'pass123',
+
         'HOST': 'localhost'
 
     }
@@ -169,6 +171,11 @@ USE_TZ = True
 
 SITE_ID = 1
 AUTH_USER_MODEL = "users.USER"
+
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 
 # Static files (CSS, JavaScript, Images)
