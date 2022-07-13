@@ -217,7 +217,7 @@ class SingleProfileView(viewsets.ModelViewSet):
     def get(self, pk=None):
         return Profile.objects.filter(user=self.request.user.id)
         # profile = get_object_or_404(self.queryset, pk=pk)
-        # serializer
+        
 
 
 
