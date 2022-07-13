@@ -116,7 +116,7 @@ class Inputs(models.Model):
     chemicals_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     
     def __str__(self):      
-        return str(self.fertilizer_name, self.chemical_name, self.seedlings_name) 
+        return self.fertilizer_name
     
     def total_fert_amount(self):
         amount = self.fertilizer_bags * self.fertilizer_price
@@ -170,7 +170,7 @@ class Farmer(models.Model):
     identification_number = models.IntegerField(null=False)
     mpesa_statements = models.ImageField(upload_to='images/')
     identification_card = models.ImageField(upload_to='images/')  
-    guarantor = models.OneToOneField(Guarantor, on_delete=models.CASCADE, null=True)  
+    guarantor = models.CharField(blank=True,max_length=255)  
     inputs_picked = models.ForeignKey(Inputs, on_delete=models.CASCADE, null=True)
     loan_amount = models.DecimalField(decimal_places=2, max_digits=20)
     production = models.IntegerField(null=True)
@@ -178,7 +178,9 @@ class Farmer(models.Model):
     land_size = models.DecimalField(decimal_places=2, max_digits=20)
     revenue = models.DecimalField(decimal_places=2, max_digits=20)
     amount_payable = models.DecimalField(decimal_places=2, max_digits=20)
-    
+    slug = models.SlugField(max_length=100,  blank=True,null=True)
+
+
     def __str__(self):      
         return str(self.identification_number) 
     
@@ -239,7 +241,3 @@ class Buyer(models.Model):
         amount = crop_price * self.bags_to_buy
         return amount 
 
-
-    
-    
-    

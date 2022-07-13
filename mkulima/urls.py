@@ -18,7 +18,9 @@ from django.contrib import admin
 from django.urls import path,include
 from users.views import *
 
-
+admin.site.site_header = 'Super Mkulima Admin'
+admin.site.site_title = 'Mkulima Admin'
+admin.site.index_title = 'Mkulima Admin'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

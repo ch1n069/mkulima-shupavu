@@ -19,6 +19,8 @@ router.register(r'api/profile/<int:pk>', views.SingleProfileView, basename='prof
 
 
 
+
+
 urlpatterns = [
     re_path(r'^api/farmer/$', views.FarmerData.as_view()),
     re_path(r'^api/buyer/$', views.BuyerData.as_view()),

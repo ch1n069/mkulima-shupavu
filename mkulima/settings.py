@@ -119,11 +119,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mkulima',
-
-        'USER': 'moringa',
-        'PASSWORD': 'newpassword',
+        'USER': 'hezronm',
+        'PASSWORD': '12345',
         'HOST': 'localhost'
-
     }
 }
 
@@ -168,7 +166,7 @@ USE_I18N = True
 USE_TZ = True
 
 SITE_ID = 1
-AUTH_USER_MODEL = "users.USER"
+AUTH_USER_MODEL = "users.User"
 
 
 ACCOUNT_EMAIL_REQUIRED = True
