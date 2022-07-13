@@ -146,6 +146,85 @@ class AuthUserLoginView(APIView):
 
         return Response(response, status=status_code)
 
+# user profile view
+class ProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Profile successfully created!',
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                   'last_name': serializer.data['last_name'],
+                #    'username' :serializer.data['username'],
+                   'contact': serializer.data['contact'],
+                   'location': serializer.data['location'],
+                }
+            }
+
+            return Response(response, status=status_code) 
+
+    # def update(self, request):
+    #     serializer = self.serializer_class(data=request.data)
+    #     valid = serializer.is_valid(raise_exception=True)
+
+    #     try:
+    #         if valid:
+    #             serializer.save()
+    #         status_code = status.HTTP_201_CREATED
+
+    #         response = {
+    #             'success': True,
+    #             'statusCode': status_code,
+    #             'message': 'Profile successfully created!',
+    #             'user': {
+    #                 'first_name': serializer.data['first_name'],
+    #                'last_name': serializer.data['last_name'],
+    #             #    'username' :serializer.data['username'],
+    #                'contact': serializer.data['contact'],
+    #                'location': serializer.data['location'],
+    #             }
+    #         }
+
+    #         return Response(response, status=status_code) 
+        
+    #     except Profile.DoesNotExist:
+    #         raise serializers.ValidationError('Profile does not exist')
+
+    def retrieve(self, request, pk = None):
+        queryset = Profile.objects.all()
+        user = get_object_or_404(queryset, pk = pk)
+        serializer = ProfileSerializer(user)
+        return Response(serializer.data)
+        
+
+
+    # def get_queryset(self):
+    #     if self.action == 'list':
+    #         return self.queryset.filter(user=self.request.user)
+    #     return self.queryset
+
+
+
+# profile update view
+# class UpdateProfileView(generics.UpdateAPIView):
+
+#     queryset = User.objects.all()
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = UpdateUserSerializer
+
+
 class UserListView(viewsets.ModelViewSet):
     serializer_class = UserListSerializer
     queryset = User.objects.all()
@@ -181,6 +260,7 @@ class UserListView(viewsets.ModelViewSet):
         #         'users': serializer.data
 
 
+
          
 
 # class BuyerData(APIView):
@@ -208,4 +288,14 @@ class UserListView(viewsets.ModelViewSet):
 #             serializers.save()
 #             return Response(serializers.data, status = status.HTTP_201_CREATED)
 #         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+
+# user profile update
+class SingleProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    def get(self, pk=None):
+        return Profile.objects.filter(user=self.request.user.id)
+        # profile = get_object_or_404(self.queryset, pk=pk)
+        # serializer
 
