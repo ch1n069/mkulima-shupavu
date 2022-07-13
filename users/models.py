@@ -1,8 +1,19 @@
+from distutils.command.upload import upload
 from django.db import models
+
 from django.conf import settings
+
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.forms import DecimalField
 from .managers import CustomUserManager
+from django.db.models.signals import post_save,post_delete
+from django.conf import settings
+from django.dispatch import receiver
+
+from decimal import Decimal
+
+
 
 # from cloudinary.models import CloudinaryField
 
@@ -10,6 +21,7 @@ from .managers import CustomUserManager
 
 # we need four main class models; farmer, buyer, Supplier, agent
 # from these four models, we will have four endpoints for an API
+
 
 # crop class
 # from this class model, we will be able to come up with the price per crop in harvest
@@ -61,6 +73,7 @@ class Inputs(models.Model):
 
 # model to represent different user types of the application
 # abstract base user reqires more fields, required fields as well as specification of username
+
 class User(AbstractBaseUser, PermissionsMixin):
     '''
     class user assumes multiple users of the application
@@ -94,7 +107,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(max_length=255, null=False, default = '')
     last_name = models.CharField(max_length=255, null=False, default = '')
     username = models.CharField(max_length=255, null=False, default = '')
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False)
     contact = models.IntegerField(null=False, default = 0)
     location = models.CharField(max_length=255, null=False, default = 'place')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
@@ -123,7 +136,8 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.first_name 
 
-# guarantor class
+
+
 class Guarantor(models.Model):
     '''
     the guarantor acts as the security for the loan given to the farmer
@@ -145,6 +159,7 @@ class Guarantor(models.Model):
 #     defines the loan that a farmer applies for
 #     '''
 #     user
+
 
 # farmer class
 class Farmer(models.Model):
@@ -188,6 +203,8 @@ class Farmer(models.Model):
         return farmer_inputs
     
 
+
+
 class Buyer(models.Model):
     '''
     buyer partners with us and purchases farmer's production from our platform
@@ -197,7 +214,9 @@ class Buyer(models.Model):
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     crop_to_buy = models.CharField(max_length=255, null=False)
     bags_to_buy = models.IntegerField(null=True)
-    invoice = models.DecimalField(decimal_places=2, max_digits=20)
+
+    invoice = models.DecimalField(decimal_places=2, max_digits=20, default=Decimal(0))
+
     #crop_to_buy = models.ForeignKey(Crop, on_delete=models.CASCADE)
 
     
@@ -210,6 +229,7 @@ class Buyer(models.Model):
         crop_price = Crop.objects.filter(price = Crop.price)
         amount = crop_price * self.bags_to_buy
         return amount 
+
 
 class Loan(models.Model):
     '''
@@ -243,6 +263,7 @@ class Loan(models.Model):
     location =  models.CharField(max_length=25, null = False, default = "None")
     
     # harvest_record = models.ForeignKey()
+
     
     def __str__(self):
         return self.occupation
