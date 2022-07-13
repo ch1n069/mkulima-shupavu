@@ -241,7 +241,3 @@ class Buyer(models.Model):
         amount = crop_price * self.bags_to_buy
         return amount 
 
-
-    
-    
-    

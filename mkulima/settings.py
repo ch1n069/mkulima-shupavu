@@ -166,7 +166,7 @@ USE_I18N = True
 USE_TZ = True
 
 SITE_ID = 1
-AUTH_USER_MODEL = "users.USER"
+AUTH_USER_MODEL = "users.User"
 
 
 ACCOUNT_EMAIL_REQUIRED = True
