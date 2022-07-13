@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import Farmer, Buyer, Supplier, User, Loan, Stock, Profile
+from users.models import Farmer, Buyer, Supplier, User, Loan, Stock, Profile, Guarantor, Inputs
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
@@ -40,10 +40,20 @@ class LoanSerializer(serializers.ModelSerializer):
         model = Loan
         fields = ['user_details', 'id_number', 'gender', 'occupation' ,'guarantor', 'inputs']                
 
+class GuarantorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Guarantor
+        fields = '__all__'
+
 class StockSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stock
         fields = '__all__'
+        
+class InputsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inputs
+        fields = '__all__'        
      
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

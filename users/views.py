@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from users.models import Farmer, Buyer, Supplier, Stock, Loan, Profile
-from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer, ProfileSerializer
+from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer, ProfileSerializer, GuarantorSerializer, InputsSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, viewsets, permissions
@@ -65,6 +65,7 @@ class BuyerData(APIView):
             return Response(serializers.data, status = status.HTTP_201_CREATED)        
         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
     
+    # needs to be worked on !!
 class SupplierData(APIView):
     '''
     allow access to suppliers only
@@ -205,16 +206,96 @@ class SingleProfileView(viewsets.ModelViewSet):
         return Profile.objects.filter(user=self.request.user.id)
         # profile = get_object_or_404(self.queryset, pk=pk)
         
-class LoanView(APIView):
+class LoanView(viewsets.ModelViewSetiew):
     serializer_class = LoanSerializer
     queryset = Loan.objects.all()
     permission_classes = (permissions.IsAdminUser,)
     
-    def get(self, request, location):
-        query_location = Loan.objects.get(location = location)
-        query_farmer = Farmer.objects.filter
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Details submitted successfully, pending approval',
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                    'last_name': serializer.data['last_name'],
+                    'id_number' :serializer.data['id_number'],
+                    'gender': serializer.data['gender'],
+                    'location': serializer.data['location'],
+                    'email': serializer.data['email'],
+                }
+                
+            }
+        return Response(response, status=status_code)
     
+        
+    def list(self, request, location):
+        user = request.user
+        if user.role == 4:
+            supplier_location = Supplier.objects.get(location = location)
+            loans_location = Loan.objects.get(supplier_location = supplier_location)
+            return Response(loans_location)
+        else:
+            response = {
+                "message": "Cannot access action",
+                "status_code": status.HTTP_400_BAD_REQUEST
+                }
+            return Response(response)
+       
+    
+class GuarantorView(APIView):
+    def get(self, request):
+        serializer_class = GuarantorSerializer
+        queryset = Guarantor.objects.all()
+        permission_classes = (permissions.IsAdminUser,)
+        return Response (queryset)
 
+class InputsView(viewsets.ModelViewSet):
+    def create(self, request):
+        query = Inputs.objects.all()
+        # serializer_class = InputsSerializer
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        
+        user = request.user        
+        if user.role == 1 and valid():
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Farm Inputs recorded,loan pending approval',
+                'user': {
+                    'fertilizer_name': serializer.data['fertilizer_name'],
+                    'chemical_name': serializer.data['chemical_name'],
+                    'seed_name' :serializer.data['seed_name'],
+                    'fertilizer_bags': serializer.data['fertilizer_bags'],
+                    'seed_quantity': serializer.data['seed_quantity'],
+                    'chemicals': serializer.data['chemicals'],
+                }                
+            }
+        return Response(response, status=status_code)
+            
+            
+    
+    def list(self, request):
+        serializer_class = InputsSerializer
+        queryset = Inputs.objects.all()
+        permission_classes = (permissions.IsAdminUser,)
+        return Response (queryset)   
+    
+    
+    
+    
+    
+    
+    
+     
         # user = request.user
         # if user.role == 1 or user.role == 2 or user.role == 3 or user.role == 4:
         #     response = {

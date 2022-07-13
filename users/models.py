@@ -31,12 +31,14 @@ class Inputs(models.Model):
     defines the inputs that will be converted to a loan
     gives the name of the input and the inputs amount
     class will be used by buyer, farmer, supplier and agent
+    Args:
+        fertilizer_name, chemical_name, seed_name, fertilizer_bags, seed_quantity, chemicals, 
     '''
     fertilizer_name = models.CharField(max_length=255, default = 'fertilizer')
     chemical_name = models.CharField(max_length=255, default='pesticide')
     seed_name = models.CharField(max_length=255, default='certified seed')
     fertilizer_bags = models.IntegerField(null=True)
-    seed_bags = models.IntegerField(null=True)
+    seed_quantity = models.IntegerField(null=True)
     chemicals = models.IntegerField(null=True)
     fertilizer_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
     seed_price = models.DecimalField(decimal_places=2, max_digits=20, blank=True, null=True)
