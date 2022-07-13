@@ -177,33 +177,7 @@ class ProfileView(viewsets.ModelViewSet):
 
             return Response(response, status=status_code) 
 
-    # def update(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     valid = serializer.is_valid(raise_exception=True)
-
-    #     try:
-    #         if valid:
-    #             serializer.save()
-    #         status_code = status.HTTP_201_CREATED
-
-    #         response = {
-    #             'success': True,
-    #             'statusCode': status_code,
-    #             'message': 'Profile successfully created!',
-    #             'user': {
-    #                 'first_name': serializer.data['first_name'],
-    #                'last_name': serializer.data['last_name'],
-    #             #    'username' :serializer.data['username'],
-    #                'contact': serializer.data['contact'],
-    #                'location': serializer.data['location'],
-    #             }
-    #         }
-
-    #         return Response(response, status=status_code) 
-        
-    #     except Profile.DoesNotExist:
-    #         raise serializers.ValidationError('Profile does not exist')
-
+  
     def retrieve(self, request, pk = None):
         queryset = Profile.objects.all()
         user = get_object_or_404(queryset, pk = pk)
@@ -372,52 +346,7 @@ class InputsView(viewsets.ModelViewSet):
     
     
      
-        # user = request.user
-        # if user.role == 1 or user.role == 2 or user.role == 3 or user.role == 4:
-        #     response = {
-        #         'success': False,
-        #         'status_code': status.HTTP_403_FORBIDDEN,
-        #         'message': 'You are not authorized to perform this action'
-        #     }
-        #     return response(response, status.HTTP_403_FORBIDDEN)
-        # else:
-        #     users = User.objects.all()
-        #     serializer = self.serializer_class(users, many=True)
-        #     response = {
-        #         'success': True,
-        #         'status_code': status.HTTP_200_OK,
-        #         'message': 'Successfully fetched users',
-        #         'users': serializer.data
-
-
-
-         
-
-# class BuyerData(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     def get(self, request, format = None):
-#         buyer_data = Buyer.objects.all()
-#         serializers = BuyerSerializer(buyer_data, many=True)
-#         return Response(serializers.data)
-#     def post(self, request, format = None):
-#         serializers = BuyerSerializer(data = request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status = status.HTTP_201_CREATED)
-#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
-    
-# class SupplierData(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     def get(self, request, format = None):
-#         supplier_data = Supplier.objects.all()
-#         serializers = SupplierSerializer(supplier_data, many=True)
-#         return Response(serializers.data)
-#     def post(self, request, format = None):
-#         serializers = SupplierSerializer(data = request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status = status.HTTP_201_CREATED)
-#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+      
 
 
 

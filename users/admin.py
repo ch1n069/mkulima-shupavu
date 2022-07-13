@@ -5,15 +5,6 @@ from django.contrib.auth.admin import UserAdmin
 from users.models import Farmer, Buyer, Supplier, Inputs, Crop, Stock, Loan , Profile
 from users.models import User 
 
-# class UserAdmin(admin.ModelAdmin):
-#     fieldsets = (
-
-#         (None, {
-#             'fields': ("Farmer", "Supplier", "Buyer", "Inputs", "Crop")
-#         }),
-#         ("exclude")
-        
-#     )
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -33,7 +24,7 @@ admin.site.register(Loan)
 admin.site.register(Stock)
 
 
-# admin.site.ntregister(Age)
+
 
 
 
