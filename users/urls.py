@@ -13,6 +13,8 @@ router = DefaultRouter()
 # router for the userlistview which is a viewset. the methods are list and retrieve
 router.register(r'api/users', views.UserListView, basename='users list')
 router.register(r'api/profile', views.ProfileView, basename='profile list')
+router.register(r'api/profile/<int:pk>', views.SingleProfileView, basename='profile list')
+
 
 
 urlpatterns = [
