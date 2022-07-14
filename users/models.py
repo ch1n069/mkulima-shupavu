@@ -315,15 +315,17 @@ class Stock(models.Model):
         (PrimaGram, "PrimaGram"),
     ]
     
-    fertilizers = models.CharField(choices = FERTILIZER_CHOICES, null=True, default = "None")
-    fertilizer_bags = models.IntegerField(null=True)
-    seeds = models.CharField(choices = SEEDS_CHOICES, null=True, default = "None")
-    seeds_quantity = models.IntegerField(null = True)
-    pesticides = models.CharField(choices = PESTICIDES_CHOICES, null=True, default = "None")
-    pesticides_quantity = models.IntegerField(null = True)
-    herbicides = models.CharField(choices = HERBICIDES_CHOICES, null=True, default = "None")
-    pesticides_quantity = models.IntegerField(null = True)
 
+    fertilizers = models.CharField(choices = FERTILIZER_CHOICES, max_length=25,null=True, default = "None")
+    fertilizer_bags = models.IntegerField(null=True)
+    seeds = models.CharField(choices = SEEDS_CHOICES, max_length=25,null=True, default = "None")
+    seeds_quantity = models.IntegerField(null = True)
+    pesticides = models.CharField(choices = PESTICIDES_CHOICES, max_length=25,null=True, default = "None")
+    pesticides_quantity = models.IntegerField(null = True)
+    herbicides = models.CharField(choices = HERBICIDES_CHOICES, max_length=25,null=True, default = "None")
+    herbicides_quantity = models.IntegerField(null = True)
+
+    
     
     
 class Supplier(models.Model):
@@ -335,9 +337,9 @@ class Supplier(models.Model):
         user_details, loan_details, inventory
     '''
     
-    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    loan_details = models.ForeignKey(Loan, on_delete = models.CASCADE)
-    inventory = models.ForeignKey(Stock, on_delete=models.CASCADE)
+    user_details = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    loan_details = models.ForeignKey(Loan, on_delete = models.CASCADE, null=True)
+    inventory = models.ForeignKey(Stock, on_delete=models.CASCADE, null=True)
     
     
     

@@ -256,7 +256,7 @@ class SingleProfileView(viewsets.ModelViewSet):
         return Profile.objects.filter(user=self.request.user.id)
         # profile = get_object_or_404(self.queryset, pk=pk)
         
-class LoanView(viewsets.ModelViewSetiew):
+class LoanView(viewsets.ModelViewSet):
     serializer_class = LoanSerializer
     queryset = Loan.objects.all()
     permission_classes = (permissions.IsAdminUser,)
@@ -340,7 +340,43 @@ class InputsView(viewsets.ModelViewSet):
         return Response (queryset)   
     
     
-    
+# stosk serializer
+class StockView(viewsets.ModelViewSet):
+    serializer_class = StockSerializer
+    queryset = Stock.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+  
+    def create (self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        # user = request.user 
+
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Stock update was successful',
+                'user': {
+                    'fertilizers': serializer.data['fertilizers'],
+                    'fertilizer_bags': serializer.data['fertilizer_bags'],
+                    'seeds': serializer.data['seeds'],
+                    'seeds_quantity': serializer.data['seeds_quantity'],
+                    'pesticides' :serializer.data['pesticides'],
+                    'pesticides_quantity': serializer.data['pesticides_quantity'],
+                    'herbicides': serializer.data['herbicides'],
+                    'herbicides_quantity': serializer.data['herbicides_quantity'],
+                    }
+                
+                }
+        return Response(response, status=status_code)
+            
+
+# update stock logic
+    # def update(self, request):
+
     
     
     
@@ -348,16 +384,5 @@ class InputsView(viewsets.ModelViewSet):
      
       
 
-
-
-# user profile update
-class SingleProfileView(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-    def get(self, pk=None):
-        return Profile.objects.filter(user=self.request.user.id)
-        # profile = get_object_or_404(self.queryset, pk=pk)
-        # serializer
 
 

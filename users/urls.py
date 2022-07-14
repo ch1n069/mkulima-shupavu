@@ -14,6 +14,7 @@ router = DefaultRouter()
 router.register(r'api/users', views.UserListView, basename='users list'),
 router.register(r'api/inputs', views.InputsView, basename='inputs'),
 router.register(r'api/loan', views.LoanView, basename='loan'),
+router.register(r'api/stock', views.StockView, basename='stock'),
 
 router.register(r'api/profile', views.ProfileView, basename='profile list')
 router.register(r'api/profile/<int:pk>', views.SingleProfileView, basename='profile list')
