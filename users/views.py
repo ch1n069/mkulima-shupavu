@@ -7,7 +7,12 @@ from rest_framework import status, generics, viewsets, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
 from users.serializer import * 
 from users.models import User
+from django.core.mail import send_mail
 
+# import sendgrid
+# from sendgrid.helpers.mail import (Mail,Email, Personalization)
+# from python_http_client import exceptions
+# from twilio_sendgrid_integration.settings import DEFAULT_FROM_EMAIL, SENDGRID_API_KEY
 
 # Create your views here.
 class FarmerData(APIView):
@@ -101,6 +106,8 @@ class AuthUserRegistrationView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
+        print(serializer.validated_data)
+        send_mail('Welcome User', 'this is Mkulima shupavu application where we deliever item or inputs inform of loan', 'hezzykialo@gmail.com' ,['serializer.email'], fail_silently=False)
 
         if valid:
             serializer.save()
@@ -208,7 +215,6 @@ class ProfileView(viewsets.ModelViewSet):
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
         
-
 # user profile update
 class SingleProfileView(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
@@ -218,9 +224,6 @@ class SingleProfileView(viewsets.ModelViewSet):
         return Profile.objects.filter(user=self.request.user.id)
         # profile = get_object_or_404(self.queryset, pk=pk)
         # serializer
-
-
-
 
 class UserListView(viewsets.ModelViewSet):
     serializer_class = UserListSerializer
@@ -257,7 +260,11 @@ class UserListView(viewsets.ModelViewSet):
         #         'users': serializer.data
 
 
+# class MailSenderAPIView(APIView):
+#     def send_mail(self):
+#        send_mail('Welcome User', 'this is application for user', 'hezzykialo@gmail.com' ,['user.mail.com'])
 
+        
          
 
 # class BuyerData(APIView):

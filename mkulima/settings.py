@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+# from dotenv import load_dotenv
+# load_dotenv()
+
 from pathlib import Path
 import os
 from datetime import timedelta
@@ -50,6 +53,8 @@ INSTALLED_APPS = [
     # 'allauth.socialaccount',
     # 'rest_auth',
     # 'rest_auth.registration',
+
+    'django_twilio',
    
 
     # own 
@@ -151,8 +156,15 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
-    'django.contrib.auth.hashers.ScryptPasswordHasher',
+    # 'django.contrib.auth.hashers.ScryptPasswordHasher',
 ]
+
+
+
+
+
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -231,3 +243,16 @@ AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
     )
 
+
+# setting default email for sending email through sendgrid
+DEFAULT_FROM_EMAIL = "hezzykialo@gmail.com"
+
+# Twillio SendGrid API key
+# SENDGRID_API_KEY='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'
+
+# Twilio SendGrid
+EMAIL_HOST='smtp.sendgrid.net'
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER='apikey'
+EMAIL_HOST_PASSWORD='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'
