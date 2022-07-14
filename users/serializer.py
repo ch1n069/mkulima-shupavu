@@ -3,7 +3,9 @@
 from enum import unique
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import Farmer, Buyer, Supplier, User, Profile
+
+from users.models import Farmer, Buyer, Supplier, User, Loan, Stock, Profile, Guarantor, Inputs
+
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
@@ -38,18 +40,34 @@ class SupplierSerializer(serializers.ModelSerializer):
         fields = ['user_details', 'inputs_details']
         read_only_fields = ['invoice', 'inputs_total']
         
-# class AgentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Agent
-#         fields = ['user_details', 'farmer_supervising', 'farmers_allocated']                
+class LoanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Loan
+        fields = ['user_details', 'id_number', 'gender', 'occupation' ,'guarantor', 'inputs']                
+
+class GuarantorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Guarantor
+        fields = '__all__'
+
+class StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
+        fields = '__all__'
         
+class InputsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inputs
+        fields = '__all__'        
+     
 class UserSerializer(serializers.ModelSerializer):
-        class Meta:
-                model = User
-                fields = '__all__'
-                extra_kwargs = {"password": {'write_only': True}}
-                fieldsets = (None)
-                # exclude = ['date_joined', 'last_login']
+
+    class Meta:
+        model = User
+        fields = '__all__'
+        extra_kwargs = {"password": {'write_only': True}}
+        fieldsets = (None)
+        # exclude = ['date_joined', 'last_login']
 
 class ProfileSerializer(serializers.ModelSerializer):
         # user  = serializers.CharField(required = True)
@@ -58,14 +76,12 @@ class ProfileSerializer(serializers.ModelSerializer):
                 model = Profile
                 fields = '__all__'
 
-        
 # # user registration and authentication
 class UserRegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(required = True, validators = [UniqueValidator(queryset=User.objects.all())])
     role = serializers.ChoiceField(choices = User.ROLE_CHOICES, required = True) 
     password = serializers.CharField(required = True, validators = [validate_password])
     confirm_password  = serializers.CharField(required = True)
-    
     
     class Meta:
 
@@ -102,8 +118,13 @@ class UserLoginSerializer(serializers.Serializer):
     def validate(self, data):
         email = data['email']
         password = data['password']
+
+        # print(email)
+        # print(password)
         user = User.objects.get(email=email)
         authenticate(user)
+        print(user)
+
         
         user.save()
         print(user)

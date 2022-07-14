@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
-from users.models import Farmer, Buyer, Supplier
-from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer
+from users.models import Farmer, Buyer, Supplier, Stock, Loan, Profile
+from users.serializer import FarmerSerializer, BuyerSerializer, SupplierSerializer, ProfileSerializer, GuarantorSerializer, InputsSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, viewsets, permissions
@@ -65,6 +65,7 @@ class BuyerData(APIView):
             return Response(serializers.data, status = status.HTTP_201_CREATED)        
         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
     
+    # needs to be worked on !!
 class SupplierData(APIView):
     '''
     allow access to suppliers only
@@ -119,7 +120,7 @@ class AuthUserRegistrationView(APIView):
                 }
             }
 
-            return Response(response, status=status_code) 
+        return Response(response, status=status_code) 
 
 class AuthUserLoginView(APIView):
     serializer_class = UserLoginSerializer
@@ -128,7 +129,8 @@ class AuthUserLoginView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         valid = serializer.is_valid(raise_exception=True)
-
+        # data = request.data
+        # print(data)
         if valid:
             status_code = status.HTTP_200_OK
 
@@ -175,33 +177,7 @@ class ProfileView(viewsets.ModelViewSet):
 
             return Response(response, status=status_code) 
 
-    # def update(self, request):
-    #     serializer = self.serializer_class(data=request.data)
-    #     valid = serializer.is_valid(raise_exception=True)
-
-    #     try:
-    #         if valid:
-    #             serializer.save()
-    #         status_code = status.HTTP_201_CREATED
-
-    #         response = {
-    #             'success': True,
-    #             'statusCode': status_code,
-    #             'message': 'Profile successfully created!',
-    #             'user': {
-    #                 'first_name': serializer.data['first_name'],
-    #                'last_name': serializer.data['last_name'],
-    #             #    'username' :serializer.data['username'],
-    #                'contact': serializer.data['contact'],
-    #                'location': serializer.data['location'],
-    #             }
-    #         }
-
-    #         return Response(response, status=status_code) 
-        
-    #     except Profile.DoesNotExist:
-    #         raise serializers.ValidationError('Profile does not exist')
-
+  
     def retrieve(self, request, pk = None):
         queryset = Profile.objects.all()
         user = get_object_or_404(queryset, pk = pk)
@@ -238,53 +214,139 @@ class UserListView(viewsets.ModelViewSet):
         user = get_object_or_404(queryset, pk = pk)
         serializer = UserListSerializer(user)
         return Response(serializer.data)
-        
-        # user = request.user
-        # if user.role == 1 or user.role == 2 or user.role == 3 or user.role == 4:
-        #     response = {
-        #         'success': False,
-        #         'status_code': status.HTTP_403_FORBIDDEN,
-        #         'message': 'You are not authorized to perform this action'
-        #     }
-        #     return response(response, status.HTTP_403_FORBIDDEN)
-        # else:
-        #     users = User.objects.all()
-        #     serializer = self.serializer_class(users, many=True)
-        #     response = {
-        #         'success': True,
-        #         'status_code': status.HTTP_200_OK,
-        #         'message': 'Successfully fetched users',
-        #         'users': serializer.data
 
+# user profile view
+class ProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProfileSerializer
 
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Profile successfully created!',
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                   'last_name': serializer.data['last_name'],
+                #    'username' :serializer.data['username'],
+                   'contact': serializer.data['contact'],
+                   'location': serializer.data['location'],
+                }
+            }
+        return Response(response, status=status_code)
 
-         
-
-# class BuyerData(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     def get(self, request, format = None):
-#         buyer_data = Buyer.objects.all()
-#         serializers = BuyerSerializer(buyer_data, many=True)
-#         return Response(serializers.data)
-#     def post(self, request, format = None):
-#         serializers = BuyerSerializer(data = request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status = status.HTTP_201_CREATED)
-#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)
+    def retrieve(self, request, pk = None):
+        queryset = Profile.objects.all()
+        user = get_object_or_404(queryset, pk = pk)
+        serializer = ProfileSerializer(user)
+        return Response(serializer.data)
     
-# class SupplierData(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     def get(self, request, format = None):
-#         supplier_data = Supplier.objects.all()
-#         serializers = SupplierSerializer(supplier_data, many=True)
-#         return Response(serializers.data)
-#     def post(self, request, format = None):
-#         serializers = SupplierSerializer(data = request.data)
-#         if serializers.is_valid():
-#             serializers.save()
-#             return Response(serializers.data, status = status.HTTP_201_CREATED)
-#         return Response(serializers.errors, status = status.HTTP_400_BAD_REQUEST)    
+    # user profile update
+class SingleProfileView(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+
+    def get(self, pk=None):
+        return Profile.objects.filter(user=self.request.user.id)
+        # profile = get_object_or_404(self.queryset, pk=pk)
+        
+class LoanView(viewsets.ModelViewSetiew):
+    serializer_class = LoanSerializer
+    queryset = Loan.objects.all()
+    permission_classes = (permissions.IsAdminUser,)
+    
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        if valid:
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Details submitted successfully, pending approval',
+                'user': {
+                    'first_name': serializer.data['first_name'],
+                    'last_name': serializer.data['last_name'],
+                    'id_number' :serializer.data['id_number'],
+                    'gender': serializer.data['gender'],
+                    'location': serializer.data['location'],
+                    'email': serializer.data['email'],
+                }
+                
+            }
+        return Response(response, status=status_code)
+    
+        
+    def list(self, request, location):
+        user = request.user
+        if user.role == 4:
+            supplier_location = Supplier.objects.get(location = location)
+            loans_location = Loan.objects.get(supplier_location = supplier_location)
+            return Response(loans_location)
+        else:
+            response = {
+                "message": "Cannot access action",
+                "status_code": status.HTTP_400_BAD_REQUEST
+                }
+            return Response(response)
+       
+    
+class GuarantorView(APIView):
+    def get(self, request):
+        serializer_class = GuarantorSerializer
+        queryset = Guarantor.objects.all()
+        permission_classes = (permissions.IsAdminUser,)
+        return Response (queryset)
+
+class InputsView(viewsets.ModelViewSet):
+    def create(self, request):
+        query = Inputs.objects.all()
+        # serializer_class = InputsSerializer
+        serializer = self.serializer_class(data=request.data)
+        valid = serializer.is_valid(raise_exception=True)
+        
+        user = request.user        
+        if user.role == 1 and valid():
+            serializer.save()
+            status_code = status.HTTP_201_CREATED
+            response = {
+                'success': True,
+                'statusCode': status_code,
+                'message': 'Farm Inputs recorded,loan pending approval',
+                'user': {
+                    'fertilizer_name': serializer.data['fertilizer_name'],
+                    'chemical_name': serializer.data['chemical_name'],
+                    'seed_name' :serializer.data['seed_name'],
+                    'fertilizer_bags': serializer.data['fertilizer_bags'],
+                    'seed_quantity': serializer.data['seed_quantity'],
+                    'chemicals': serializer.data['chemicals'],
+                }                
+            }
+        return Response(response, status=status_code)
+            
+            
+    
+    def list(self, request):
+        serializer_class = InputsSerializer
+        queryset = Inputs.objects.all()
+        permission_classes = (permissions.IsAdminUser,)
+        return Response (queryset)   
+    
+    
+    
+    
+    
+    
+    
+     
+      
 
 
 
