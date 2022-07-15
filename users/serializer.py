@@ -41,9 +41,12 @@ class SupplierSerializer(serializers.ModelSerializer):
         read_only_fields = ['invoice', 'inputs_total']
         
 class LoanSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Loan
-        fields = ['user_details', 'id_number', 'gender', 'occupation' ,'guarantor', 'inputs']                
+        # fields = ['user_details', 'id_number', 'gender', 'occupation' ,'guarantor', 'inputs']                
+        # fields = '__all__'
+        exclude = ['status']
 
 class GuarantorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,11 +126,12 @@ class UserLoginSerializer(serializers.Serializer):
         # print(password)
         user = User.objects.get(email=email)
         authenticate(user)
-        print(user)
+        # print(user)
 
         
         user.save()
-        print(user)
+       
+        # print(user)
         if user is None:
             raise serializers.ValidationError("Non existent user")
         try:

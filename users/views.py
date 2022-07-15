@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, viewsets, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, AllowAny
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+
 from users.serializer import * 
 from users.models import User
 
@@ -17,7 +19,9 @@ class FarmerData(APIView):
     
     def get(self, request, format = None):    
         user = request.user
-        if user.role == 1:                          
+        print(user.role)
+        if user.role == 1: 
+                                     
             farmer_data = Farmer.objects.all()
             serializers = FarmerSerializer(farmer_data, many=True)
             return Response(serializers.data)
@@ -74,6 +78,7 @@ class SupplierData(APIView):
     
     def get(self, request, format = None):
         user = request.user
+        print(user.role)
         if user.role == 4: 
             supplier_data = Supplier.objects.all()
             serializers = SupplierSerializer(supplier_data, many=True)
@@ -215,56 +220,62 @@ class UserListView(viewsets.ModelViewSet):
         serializer = UserListSerializer(user)
         return Response(serializer.data)
 
-# user profile view
-class ProfileView(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    permission_classes = (IsAuthenticated,)
-    serializer_class = ProfileSerializer
+# # user profile view
+# class ProfileView(viewsets.ModelViewSet):
+#     queryset = Profile.objects.all()
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = ProfileSerializer
 
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        valid = serializer.is_valid(raise_exception=True)
-        if valid:
-            serializer.save()
-            status_code = status.HTTP_201_CREATED
-            response = {
-                'success': True,
-                'statusCode': status_code,
-                'message': 'Profile successfully created!',
-                'user': {
-                    'first_name': serializer.data['first_name'],
-                   'last_name': serializer.data['last_name'],
-                #    'username' :serializer.data['username'],
-                   'contact': serializer.data['contact'],
-                   'location': serializer.data['location'],
-                }
-            }
-        return Response(response, status=status_code)
+#     def create(self, request):
+#         serializer = self.serializer_class(data=request.data)
+#         valid = serializer.is_valid(raise_exception=True)
+#         if valid:
+#             serializer.save()
+#             status_code = status.HTTP_201_CREATED
+#             response = {
+#                 'success': True,
+#                 'statusCode': status_code,
+#                 'message': 'Profile successfully created!',
+#                 'user': {
+#                     'first_name': serializer.data['first_name'],
+#                    'last_name': serializer.data['last_name'],
+#                 #    'username' :serializer.data['username'],
+#                    'contact': serializer.data['contact'],
+#                    'location': serializer.data['location'],
+#                 }
+#             }
+#         return Response(response, status=status_code)
 
-    def retrieve(self, request, pk = None):
-        queryset = Profile.objects.all()
-        user = get_object_or_404(queryset, pk = pk)
-        serializer = ProfileSerializer(user)
-        return Response(serializer.data)
+#     def retrieve(self, request, pk = None):
+#         queryset = Profile.objects.all()
+#         user = get_object_or_404(queryset, pk = pk)
+#         serializer = ProfileSerializer(user)
+#         return Response(serializer.data)
     
     # user profile update
-class SingleProfileView(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
+# class SingleProfileView(viewsets.ModelViewSet):
+#     queryset = Profile.objects.all()
+#     serializer_class = ProfileSerializer
 
-    def get(self, pk=None):
-        return Profile.objects.filter(user=self.request.user.id)
-        # profile = get_object_or_404(self.queryset, pk=pk)
-        
-class LoanView(viewsets.ModelViewSetiew):
-    serializer_class = LoanSerializer
+#     def get(self, pk=None):
+#         return Profile.objects.filter(user=self.request.user.id)
+#         # profile = get_object_or_404(self.queryset, pk=pk)
+@authentication_classes([]) 
+@permission_classes([])     
+class LoanView(viewsets.ModelViewSet):
     queryset = Loan.objects.all()
-    permission_classes = (permissions.IsAdminUser,)
+    serializer_class = LoanSerializer
+
+
+    # permission_classes = (IsAuthenticated)
+    
+    # permission_classes = [IsAuthenticated]
+
     
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
-        valid = serializer.is_valid(raise_exception=True)
-        if valid:
+        valid = serializer.is_valid(raise_exception=False)
+        if valid:   
             serializer.save()
             status_code = status.HTTP_201_CREATED
             response = {
@@ -275,27 +286,29 @@ class LoanView(viewsets.ModelViewSetiew):
                     'first_name': serializer.data['first_name'],
                     'last_name': serializer.data['last_name'],
                     'id_number' :serializer.data['id_number'],
-                    'gender': serializer.data['gender'],
                     'location': serializer.data['location'],
-                    'email': serializer.data['email'],
+
+                    # 'gender': serializer.data['gender'],
+                    'crop': serializer.data['crop'],
+                    # 'email': serializer.data['email'],
                 }
                 
             }
         return Response(response, status=status_code)
     
         
-    def list(self, request, location):
-        user = request.user
-        if user.role == 4:
-            supplier_location = Supplier.objects.get(location = location)
-            loans_location = Loan.objects.get(supplier_location = supplier_location)
-            return Response(loans_location)
-        else:
-            response = {
-                "message": "Cannot access action",
-                "status_code": status.HTTP_400_BAD_REQUEST
-                }
-            return Response(response)
+    # def list(self, request, location):
+    #     user = request.user
+    #     if user:
+    #         supplier_location = Supplier.objects.get(location = location)
+    #         loans_location = Loan.objects.get(supplier_location = supplier_location)
+    #         return Response(loans_location)
+    #     else:
+    #         response = {
+    #             "message": "Cannot access action",
+    #             "status_code": status.HTTP_400_BAD_REQUEST
+    #             }
+    #         return Response(response)
        
     
 class GuarantorView(APIView):

@@ -237,36 +237,41 @@ class Loan(models.Model):
     Args:
         user_details,id_number, gender, occuputaion, guarantor, inputs, status, location
     '''
-    Male = 1
-    Female = 2
-    ROLE_CHOICES = [
-        (Male, "Male"),
-        (Female, "Female"),     
-    ]  
+    # Male = 1
+    # Female = 2
+    # ROLE_CHOICES = [
+    #     (Male, "Male"),
+    #     (Female, "Female"),     
+    # ]  
     
-    Pending = 1
-    Approved = 2
-    Rejected = 3
+    Pending = "PENDING"
+    Approved = "APPROVED"
+    Rejected = "REJECTED"
     LOAN_CHOICES = [
         (Pending, "Pending"),
         (Approved, "Approved"),
         (Rejected, "Rejected"),        
     ]
     
-    user_details = models.OneToOneField(User, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=255, null=False)
+    last_name = models.CharField(max_length=255, null=True)
+    # user_details = models.OneToOneField(User, on_delete=models.CASCADE)
     id_number = models.IntegerField(null=False, default = "None")
-    gender = models.CharField(choices = ROLE_CHOICES, max_length=25, null = False, default = "None")
-    occupation =  models.CharField(max_length=25, null = False, default = "None")
-    guarantor = models.ForeignKey(Guarantor, on_delete=models.CASCADE)
-    inputs = models.ForeignKey(Inputs, on_delete=models.CASCADE)
-    status = models.CharField(choices = LOAN_CHOICES, max_length=25, null = False, default = "None")
-    location =  models.CharField(max_length=25, null = False, default = "None")
+    # gender = models.CharField(choices = ROLE_CHOICES, max_length=25, null = False, default = "None")
+    # occupation =  models.CharField(max_length=25, null = False, default = "None")
+    # guarantor = models.ForeignKey(Guarantor, on_delete=models.CASCADE)
+    # inputs = models.ForeignKey(Inputs, on_delete=models.CASCADE)
+    status = models.CharField(choices = LOAN_CHOICES, max_length=25, null = False, default = 1)
+    location =  models.CharField(max_length=255, null=False),
+    crop = models.CharField(max_length=255, null = False)
+
+    # supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     
     # harvest_record = models.ForeignKey()
 
     
     def __str__(self):
-        return self.occupation
+        return self.crop
     
 class Stock(models.Model):
     '''
@@ -315,13 +320,13 @@ class Stock(models.Model):
         (PrimaGram, "PrimaGram"),
     ]
     
-    fertilizers = models.CharField(choices = FERTILIZER_CHOICES, null=True, default = "None")
+    fertilizers = models.CharField(choices = FERTILIZER_CHOICES, max_length =120, null=True, default = "None")
     fertilizer_bags = models.IntegerField(null=True)
-    seeds = models.CharField(choices = SEEDS_CHOICES, null=True, default = "None")
+    seeds = models.CharField(choices = SEEDS_CHOICES,max_length =120, null=True, default = "None")
     seeds_quantity = models.IntegerField(null = True)
-    pesticides = models.CharField(choices = PESTICIDES_CHOICES, null=True, default = "None")
+    pesticides = models.CharField(choices = PESTICIDES_CHOICES, max_length =120, null=True, default = "None")
     pesticides_quantity = models.IntegerField(null = True)
-    herbicides = models.CharField(choices = HERBICIDES_CHOICES, null=True, default = "None")
+    herbicides = models.CharField(choices = HERBICIDES_CHOICES,max_length =120, null=True, default = "None")
     pesticides_quantity = models.IntegerField(null = True)
 
     
@@ -336,7 +341,7 @@ class Supplier(models.Model):
     '''
     
     user_details = models.OneToOneField(User, on_delete=models.CASCADE)
-    loan_details = models.ForeignKey(Loan, on_delete = models.CASCADE)
+    # loan_details = models.ForeignKey(Loan, on_delete = models.CASCADE)
     inventory = models.ForeignKey(Stock, on_delete=models.CASCADE)
     
     

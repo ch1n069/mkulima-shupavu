@@ -167,7 +167,10 @@ USE_I18N = True
 
 USE_TZ = True
 
+
 SITE_ID = 1
+SILENCED_SYSTEM_CHECKS = ['auth.E003', 'auth.W004']
+
 AUTH_USER_MODEL = "users.USER"
 
 
